@@ -25,14 +25,24 @@ public class Challenge {
     private Integer fid;
     @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String fname;
+    private Integer tid;
     private String tname;
     private String color;
     private String flag;
-    private List<String> tags;
+    private List<Integer> tags;
+    private List<String> tagsView;
     private Integer finishedNum;
     private String status;
     private Integer masterUid;
     private String masterName;
+
+    public Challenge() {
+
+    }
+
+    public Challenge(Integer cid) {
+        this.cid = cid;
+    }
 
     public Challenge briefView() {
         descr = null;

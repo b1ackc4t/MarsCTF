@@ -11,4 +11,5 @@ public interface ChaTagService extends IService<ChaTag> {
     PageInfo<ChaTag> getAllTagByPage(int pageNum, int pageSize);
     ReturnRes getTagsByType(String type);
     ReturnRes getTags();
+    ReturnRes removeTag(ChaTag chaTag);
 }

@@ -13,4 +13,5 @@ public interface UserScoreService {
      * @return
      */
     ReturnRes getChaRanking(Integer cid, Integer rankNum);
+    ReturnRes getScoreChart(Integer uid);
 }

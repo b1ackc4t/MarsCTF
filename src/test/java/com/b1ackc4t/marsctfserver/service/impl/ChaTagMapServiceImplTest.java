@@ -25,9 +25,7 @@ class ChaTagMapServiceImplTest {
 
     @Test
     void fun02() {
-        ChaTagMap chaTagMap = new ChaTagMap(3, "模板注入");
-        chaTagMapService.save(chaTagMap);
-        System.out.println();
+
     }
 
     @Test

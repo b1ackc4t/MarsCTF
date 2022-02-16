@@ -45,4 +45,9 @@ public class CTFFileController {
     @GetMapping("/user/downloadCTFFile/{id:\\d+}")
     public ReturnRes download(@PathVariable Integer id, HttpServletResponse response) {return ctfFileService.download(id, response);}
 
+    @PostMapping("/user/writeup/uploadImage")
+    public ReturnRes uploadImage(@RequestParam(name = "file") MultipartFile file,
+                                 @RequestParam Integer wid) {
+        return ctfFileService.uploadImageForWP(file, wid);
+    }
 }

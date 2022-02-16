@@ -9,6 +9,12 @@ import java.util.List;
 
 @Mapper
 public interface ChaTagMapper extends BaseMapper<ChaTag> {
-    @Select("select * from mc_cha_tag where tname=#{type}")
+    @Select("select a.*, b.tname from mc_cha_tag as a left join mc_cha_type as b on a.tid=b.tid where b.tname=#{type}")
     List<ChaTag> selectByType(String type);
+
+    @Select("select a.*, b.tname from mc_cha_tag as a left join mc_cha_type as b on a.tid=b.tid")
+    List<ChaTag> selectAllTag();
+
+    @Select("select a.*, b.tname from mc_cha_tag as a left join mc_cha_type as b on a.tid=b.tid where a.tgid=#{tgid}")
+    ChaTag selectTagById(Integer tgid);
 }

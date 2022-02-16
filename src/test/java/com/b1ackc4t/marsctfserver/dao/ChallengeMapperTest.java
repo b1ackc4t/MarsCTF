@@ -21,4 +21,10 @@ class ChallengeMapperTest {
         List<Challenge> pageInfo = challengeMapper.selectAllForUser(105355682);
         System.out.println();
     }
+
+    @Test
+    void fun02() {
+        Challenge challenge = challengeMapper.selectByIdForAdmin(37);
+        System.out.println();
+    }
 }

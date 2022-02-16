@@ -9,5 +9,16 @@ public class ChaTag {
     @TableId(type = IdType.AUTO)
     private Integer tgid;
     private String tgname;
+    private Integer tid;
+
+
     private String tname;
+
+    public ChaTag() {
+
+    }
+
+    public ChaTag(Integer tgid) {
+        this.tgid = tgid;
+    }
 }

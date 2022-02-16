@@ -21,9 +21,18 @@ public class Writeup {
     private String descr;
     private Date creTime;
     private Boolean done;
+    private String comment;
 
     // 方便联合查询
     private String cname;
     private String uname;
     private String tname;
+
+    public Writeup() {
+
+    }
+
+    public Writeup(Integer wid) {
+        this.wid = wid;
+    }
 }

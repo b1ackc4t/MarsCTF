@@ -1,8 +1,10 @@
 package com.b1ackc4t.marsctfserver.service.impl;
 
+import com.b1ackc4t.marsctfserver.dao.WpImageMapper;
 import com.b1ackc4t.marsctfserver.dao.WriteupMapper;
 import com.b1ackc4t.marsctfserver.pojo.ReturnRes;
 import com.b1ackc4t.marsctfserver.pojo.Writeup;
+import com.b1ackc4t.marsctfserver.service.WpImageService;
 import com.b1ackc4t.marsctfserver.service.WriteupService;
 import com.b1ackc4t.marsctfserver.util.MdUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -16,9 +18,13 @@ import java.util.List;
 @Service
 public class WriteupServiceImpl extends ServiceImpl<WriteupMapper, Writeup> implements WriteupService {
     final WriteupMapper writeupMapper;
+    final WpImageMapper wpImageMapper;
+    final WpImageService wpImageService;
 
-    public WriteupServiceImpl(WriteupMapper writeupMapper) {
+    public WriteupServiceImpl(WriteupMapper writeupMapper, WpImageMapper wpImageMapper, WpImageService wpImageService) {
         this.writeupMapper = writeupMapper;
+        this.wpImageMapper = wpImageMapper;
+        this.wpImageService = wpImageService;
     }
 
     @Override
@@ -28,7 +34,9 @@ public class WriteupServiceImpl extends ServiceImpl<WriteupMapper, Writeup> impl
         writeup.setDone(false);
         writeup.setDescr(MdUtil.getDescrByMd(writeup.getText()));
         writeup.setCreTime(new Date());
+        writeup.setComment("");
         if (save(writeup)) {
+            wpImageMapper.updateImageInfo(writeup.getWid());
             return new ReturnRes(true, writeup.getWid(), "提交成功");
         }
         return new ReturnRes(false, "提交失败");
@@ -46,8 +54,8 @@ public class WriteupServiceImpl extends ServiceImpl<WriteupMapper, Writeup> impl
     }
 
     @Override
-    public ReturnRes getWriteupByWid(Integer wid) {
-        Writeup writeup = writeupMapper.selectByWid(wid);
+    public ReturnRes getWriteupByWidForUser(Integer wid) {
+        Writeup writeup = writeupMapper.selectByWidForUser(wid);
         if (writeup != null) return new ReturnRes(true, writeup, "查询成功");
         return new ReturnRes(false, "查询失败");
     }
@@ -63,15 +71,131 @@ public class WriteupServiceImpl extends ServiceImpl<WriteupMapper, Writeup> impl
     }
 
     @Override
-    public ReturnRes passWriteup(Integer wid, Integer score) {
+    public ReturnRes passWriteup(Integer wid, Integer score, String comment) {
         Writeup writeup = new Writeup();
         writeup.setDone(true);
         writeup.setWid(wid);
         writeup.setScore(score);
         writeup.setStatus(true);
+        writeup.setComment(comment);
         if (updateById(writeup)) {
             return new ReturnRes(true, writeup.getWid(), "操作成功");
         }
         return new ReturnRes(false, "操作失败");
+    }
+
+    @Override
+    public ReturnRes rejectWriteup(Integer wid, Integer score, String comment) {
+        Writeup writeup = new Writeup();
+        writeup.setDone(true);
+        writeup.setWid(wid);
+        writeup.setScore(score);
+        writeup.setComment(comment);
+        if (updateById(writeup)) {
+            return new ReturnRes(true, writeup.getWid(), "操作成功");
+        }
+        return new ReturnRes(false, "操作失败");
+    }
+
+    @Override
+    public ReturnRes getWriteupByWidForAdmin(Integer wid) {
+        Writeup writeup = writeupMapper.selectByWidForAdmin(wid);
+        if (writeup != null) return new ReturnRes(true, writeup, "查询成功");
+        return new ReturnRes(false, "查询失败");
+    }
+
+    @Override
+    public ReturnRes getWriteupByPageForAdmin(int pageSize, int pageNum) {
+        PageHelper.startPage(pageNum, pageSize);
+        List<Writeup> writeups = writeupMapper.selectAllForAdmin();
+        if (writeups != null) {
+            return new ReturnRes(true, new PageInfo<Writeup>(writeups), "查询成功");
+        }
+        return new ReturnRes(false, "查询失败");
+    }
+
+    /**
+     * 管理员删除wp，并删除wp里的图片
+     * @param writeup
+     * @return
+     */
+    @Override
+    public ReturnRes removeWriteupForAdmin(Writeup writeup) {
+        if (removeById(writeup.getWid())) {
+            wpImageService.removeWpImageByWid(writeup.getWid());
+            return new ReturnRes(true, writeup.getWid(), writeup.getTitle() + " 删除成功");
+        }
+        return new ReturnRes(false, "操作失败");
+    }
+
+    @Override
+    public ReturnRes reCheck(Integer wid, String title) {
+        Writeup writeup = new Writeup();
+        writeup.setDone(false);
+        writeup.setWid(wid);
+        writeup.setScore(0);
+        writeup.setComment("");
+        if (updateById(writeup)) {
+            return new ReturnRes(true, writeup.getWid(), title + " 已添加到审核列表");
+        }
+        return new ReturnRes(false, "操作失败");
+    }
+
+    @Override
+    public ReturnRes getWriteupByCidForRank(Integer cid, Integer num) {
+        List<Writeup> writeups = writeupMapper.selectWriteupByCidForRank(cid, num);
+        if (writeups != null) {
+            return new ReturnRes(true, writeups, "查询成功");
+        }
+        return new ReturnRes(false, "查询失败");
+    }
+
+    @Override
+    public ReturnRes getWriteupByPageForMe(Integer uid, int pageSize, int pageNum) {
+        PageHelper.startPage(pageNum, pageSize);
+        List<Writeup> writeups = writeupMapper.selectAllForMe(uid);
+        if (writeups != null) {
+            return new ReturnRes(true, new PageInfo<Writeup>(writeups), "查询成功");
+        }
+        return new ReturnRes(false, "查询失败");
+    }
+
+    @Override
+    public ReturnRes getWriteupByWidForMe(Integer uid, Integer wid) {
+        if (uid.equals(writeupMapper.selectUidByWid(wid))) {
+            Writeup writeup = writeupMapper.selectByWidForMe(wid);
+            if (writeup != null) return new ReturnRes(true, writeup, "查询成功");
+        }
+        return new ReturnRes(false, "查询失败");
+    }
+
+    @Override
+    public ReturnRes removeWriteupForUser(Integer uid, Writeup writeup) {
+        if (uid.equals(writeupMapper.selectUidByWid(writeup.getWid()))) {
+            if (removeById(writeup.getWid())) {
+                wpImageService.removeWpImageByWid(writeup.getWid());
+                return new ReturnRes(true, writeup.getWid(), writeup.getTitle() + " 删除成功");
+            }
+        }
+        return new ReturnRes(false, "操作失败");
+    }
+
+    @Override
+    public ReturnRes updateWriteupForUser(Integer uid, Writeup writeup) {
+        if (uid.equals(writeupMapper.selectUidByWid(writeup.getWid()))) {
+            writeup.setCname(null);
+            writeup.setUname(null);
+            writeup.setTname(null);
+            writeup.setStatus(false);
+            writeup.setDone(false);
+            writeup.setDescr(MdUtil.getDescrByMd(writeup.getText()));
+            writeup.setCreTime(new Date());
+            writeup.setComment("");
+            if (updateById(writeup)) {
+                wpImageMapper.updateImageInfo(writeup.getWid());
+                return new ReturnRes(true, writeup.getWid(), "提交成功");
+            }
+        }
+        return new ReturnRes(false, "提交失败");
     }
 }

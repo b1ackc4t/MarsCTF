@@ -3,7 +3,9 @@ package com.b1ackc4t.marsctfserver.service.impl;
 import com.b1ackc4t.marsctfserver.dao.CTFFileMapper;
 import com.b1ackc4t.marsctfserver.pojo.CTFFile;
 import com.b1ackc4t.marsctfserver.pojo.ReturnRes;
+import com.b1ackc4t.marsctfserver.pojo.WpImage;
 import com.b1ackc4t.marsctfserver.service.CTFFileService;
+import com.b1ackc4t.marsctfserver.service.WpImageService;
 import com.b1ackc4t.marsctfserver.util.generator.SnowFlakeUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +22,19 @@ public class CTFFileServiceImpl extends ServiceImpl<CTFFileMapper, CTFFile> impl
     @Value("${marsctf.uploadPath}")
     private String uploadPath;
 
+    @Value("${marsctf.imagePath}")
+    private String imagePath;
+
+    @Value("${marsctf.imageUrl}")
+    private String imageUrl;
+
     final CTFFileMapper ctfFileMapper;
+    final WpImageService wpImageService;
 
     @Autowired
-    public CTFFileServiceImpl(CTFFileMapper ctfFileMapper) {
+    public CTFFileServiceImpl(CTFFileMapper ctfFileMapper, WpImageService wpImageService) {
         this.ctfFileMapper = ctfFileMapper;
+        this.wpImageService = wpImageService;
     }
 
 
@@ -117,5 +127,28 @@ public class CTFFileServiceImpl extends ServiceImpl<CTFFileMapper, CTFFile> impl
         } else {
             return new ReturnRes(false, "文件不存在");
         }
+    }
+
+    @Override
+    public ReturnRes uploadImageForWP(MultipartFile file, Integer wid) {
+        if (file.isEmpty()) {
+            return new ReturnRes(false, "上传失败，请选择文件");
+        }
+        String fileName = file.getOriginalFilename();
+        int lastIndexOf = fileName.lastIndexOf(".");
+        String ext = lastIndexOf != -1 ? fileName.substring(lastIndexOf + 1) : "";
+        String newName = String.valueOf(SnowFlakeUtil.generatorUid()) + "." + ext;
+        File dest = new File(imagePath + imageUrl, newName); // 为每个文件单独创建一个文件夹 文件夹名采用雪花算法
+        try {
+            WpImage wpImage = new WpImage();
+            wpImage.setWid(wid);
+            wpImage.setFpath(newName);
+            wpImageService.save(wpImage);
+            file.transferTo(dest);  // 上传成功
+            return new ReturnRes(true, imageUrl + newName, "图片上传成功");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new ReturnRes(false, "上传失败，服务器错误");
     }
 }

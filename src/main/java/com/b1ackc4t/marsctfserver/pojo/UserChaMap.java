@@ -14,5 +14,9 @@ public class UserChaMap {
     @TableField(value = "`rank`")
     private Integer rank;
 
+    // 方便查询
+    private String cname;
+    private String tname;
+    private Integer score;
     public UserChaMap() {}
 }

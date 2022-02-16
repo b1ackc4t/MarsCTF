@@ -20,14 +20,16 @@ public class ChallengeServiceImpl extends ServiceImpl<ChallengeMapper, Challenge
     final CTFFileService ctfFileService;
     final UserChaMapService userChaMapService;
     final UserService userService;
+    final WriteupService writeupService;
 
     @Autowired
-    public ChallengeServiceImpl(ChallengeMapper challengeMapper, ChaTagMapService chaTagMapService, CTFFileService ctfFileService, UserChaMapService userChaMapService, UserService userService) {
+    public ChallengeServiceImpl(ChallengeMapper challengeMapper, ChaTagMapService chaTagMapService, CTFFileService ctfFileService, UserChaMapService userChaMapService, UserService userService, WriteupService writeupService) {
         this.challengeMapper = challengeMapper;
         this.chaTagMapService = chaTagMapService;
         this.ctfFileService = ctfFileService;
         this.userChaMapService = userChaMapService;
         this.userService = userService;
+        this.writeupService = writeupService;
     }
 
     @Override
@@ -35,7 +37,8 @@ public class ChallengeServiceImpl extends ServiceImpl<ChallengeMapper, Challenge
         Challenge challenge = challengeMapper.selectByIdForUser(cid);
         if (challenge != null) {
             List<ChaTagMap> list = chaTagMapService.getTgnameByCid(challenge.getCid());
-            challenge.setTags(chaTagMap2String(list));
+            challenge.setTagsView(chaTagMap2String(list));
+            challenge.setTags(chaTagMap2Id(list));
             return new ReturnRes(true, challenge, "查询成功");
         } else {
             return new ReturnRes(false, "查询失败");
@@ -50,14 +53,16 @@ public class ChallengeServiceImpl extends ServiceImpl<ChallengeMapper, Challenge
      */
     @Override
     public boolean save(Challenge challenge) {
-        List<String> tags = challenge.getTags();
+        List<Integer> tags = challenge.getTags();
+        challenge.setTname(null);
+        challenge.setMasterName(null);
         challenge.setTags(null);
         challenge.setCretime(new Date());
         challenge.setFinishedNum(0);
+        challenge.setTagsView(null);
         if (super.save(challenge)) {
             if (tags != null) {
-                for (String tag : tags) {
-                    System.out.println(tag);
+                for (Integer tag : tags) {
                     chaTagMapService.save(new ChaTagMap(challenge.getCid(), tag));
                 }
             }
@@ -73,13 +78,16 @@ public class ChallengeServiceImpl extends ServiceImpl<ChallengeMapper, Challenge
      */
     @Override
     public boolean update(Challenge challenge) {
+        challenge.setTname(null);
+        challenge.setMasterName(null);
         challenge.setFinishedNum(null);
+        challenge.setTagsView(null);
         Challenge originChallenge = challengeMapper.selectFidByCid(challenge.getCid());
         Integer originFid = originChallenge != null ? originChallenge.getFid() : null;
-        List<String> tags = challenge.getTags();    // 更新标签
+        List<Integer> tags = challenge.getTags();    // 更新标签
         if (tags != null) {
             chaTagMapService.removeByCid(challenge.getCid());
-            for (String tag : tags) {
+            for (Integer tag : tags) {
                 chaTagMapService.save(new ChaTagMap(challenge.getCid(), tag));
             }
         }
@@ -108,6 +116,10 @@ public class ChallengeServiceImpl extends ServiceImpl<ChallengeMapper, Challenge
     @Override
     public boolean remove(Integer cid) {
         chaTagMapService.removeByCid(cid);  // 移除题目相关的标签映射
+        List<Integer> list = challengeMapper.selectWidByCid(cid);
+        for (Integer wid : list) {
+            writeupService.removeWriteupForAdmin(new Writeup(wid));
+        }
         userChaMapService.removeByCid(cid); // 移除题目的提交信息
         Challenge challenge = challengeMapper.selectFidByCid(cid);
         if (super.removeById(cid)) {
@@ -127,7 +139,8 @@ public class ChallengeServiceImpl extends ServiceImpl<ChallengeMapper, Challenge
             for (Challenge item : result) {
                 List<ChaTagMap> list = chaTagMapService.getTgnameByCid(item.getCid());
                 if (list != null) {
-                    item.setTags(chaTagMap2String(list));
+                    item.setTagsView(chaTagMap2String(list));
+                    item.setTags(chaTagMap2Id(list));
                 }
             }
         }
@@ -139,6 +152,17 @@ public class ChallengeServiceImpl extends ServiceImpl<ChallengeMapper, Challenge
             List<String> res = new ArrayList<>();
             for (ChaTagMap chaTagMap : list) {
                 res.add(chaTagMap.getTgname());
+            }
+            return res;
+        }
+        return null;
+    }
+
+    public List<Integer> chaTagMap2Id(List<ChaTagMap> list) {
+        if (list != null) {
+            List<Integer> res = new ArrayList<>();
+            for (ChaTagMap chaTagMap : list) {
+                res.add(chaTagMap.getTgid());
             }
             return res;
         }
@@ -164,7 +188,8 @@ public class ChallengeServiceImpl extends ServiceImpl<ChallengeMapper, Challenge
         if (challenge != null) {
             List<ChaTagMap> list = chaTagMapService.getTgnameByCid(challenge.getCid());
             if (list != null) {
-                challenge.setTags(chaTagMap2String(list));
+                challenge.setTagsView(chaTagMap2String(list));
+                challenge.setTags(chaTagMap2Id(list));
             }
         }
         return challenge;

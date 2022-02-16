@@ -1,3 +1,8 @@
+marsctf:
+  uploadPath: E:\CTFFiles\  # 题目附件的存放位置
+  imagePath: E:\CTFImages\  # 图片的存放位置
+  imageUrl: /api/img/ # 图片访问的url位置
+
 server:
   port: 80
 #  servlet:
@@ -16,6 +21,11 @@ spring:
     multipart:
       max-file-size: 500MB
       max-request-size: 500MB
+  mvc:
+    static-path-pattern: /**
+  web:
+    resources:
+      static-locations: classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/,file:${marsctf.imagePath}
 
 mybatis-plus:
   global-config:
@@ -30,5 +40,6 @@ pagehelper:
   helper-dialect: mysql
   reasonable: true
 
-marsctf:
-  uploadPath: E:\CTFFiles\  # 题目附件的存放位置
+
+
+

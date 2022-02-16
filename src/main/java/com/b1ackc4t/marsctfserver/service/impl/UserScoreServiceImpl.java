@@ -5,11 +5,13 @@ import com.b1ackc4t.marsctfserver.dao.UserScoreMapper;
 import com.b1ackc4t.marsctfserver.pojo.ChaRankPojo;
 import com.b1ackc4t.marsctfserver.pojo.ReturnRes;
 import com.b1ackc4t.marsctfserver.pojo.User;
+import com.b1ackc4t.marsctfserver.pojo.UserChartPojo;
 import com.b1ackc4t.marsctfserver.service.UserScoreService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -34,6 +36,19 @@ public class UserScoreServiceImpl implements UserScoreService {
         List<ChaRankPojo> chaRankPojos = userScoreMapper.selectChaRankInfo(cid, rankNum);
         if (chaRankPojos != null) {
             return new ReturnRes(true, chaRankPojos, "查询成功");
+        }
+        return new ReturnRes(false, "查询失败");
+    }
+
+    @Override
+    public ReturnRes getScoreChart(Integer uid) {
+        List<UserChartPojo> allData = userScoreMapper.selectAllChart();
+        List<UserChartPojo> userData = userScoreMapper.selectUserChart(uid);
+        if (allData != null && userData != null) {
+            List<List> list = new ArrayList<>();
+            list.add(userData);
+            list.add(allData);
+            return new ReturnRes(true, list, "查询成功");
         }
         return new ReturnRes(false, "查询失败");
     }

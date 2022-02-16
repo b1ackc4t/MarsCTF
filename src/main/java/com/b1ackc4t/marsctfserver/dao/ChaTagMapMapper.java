@@ -10,11 +10,13 @@ import java.util.List;
 
 @Mapper
 public interface ChaTagMapMapper extends BaseMapper<ChaTagMap> {
-    @Select("select tgname from mc_cha_tag_map where cid=#{cid}")
+    @Select("select a.tgid, b.tgname from mc_cha_tag_map as a left join mc_cha_tag as b on a.tgid=b.tgid where cid=#{cid}")
     List<ChaTagMap> selectTgnameByCid(Integer cid);
 
     @Delete("delete from mc_cha_tag_map where cid=#{cid}")
     boolean deleteByCid(Integer cid);
 
+    @Delete("delete from mc_cha_tag_map where tgid=#{tgid}")
+    boolean deleteByTgid(Integer tgid);
 
 }

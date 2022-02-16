@@ -1,5 +1,6 @@
 package com.b1ackc4t.marsctfserver.service.impl;
 
+import com.b1ackc4t.marsctfserver.dao.ChaTagMapMapper;
 import com.b1ackc4t.marsctfserver.dao.ChaTagMapper;
 import com.b1ackc4t.marsctfserver.pojo.ChaTag;
 import com.b1ackc4t.marsctfserver.pojo.ReturnRes;
@@ -15,15 +16,17 @@ import java.util.List;
 public class ChaTagServiceImpl extends ServiceImpl<ChaTagMapper, ChaTag> implements ChaTagService {
 
     final ChaTagMapper chaTagMapper;
+    final ChaTagMapMapper chaTagMapMapper;
 
-    public ChaTagServiceImpl(ChaTagMapper chaTagMapper) {
+    public ChaTagServiceImpl(ChaTagMapper chaTagMapper, ChaTagMapMapper chaTagMapMapper) {
         this.chaTagMapper = chaTagMapper;
+        this.chaTagMapMapper = chaTagMapMapper;
     }
 
     @Override
     public PageInfo<ChaTag> getAllTagByPage(int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
-        List<ChaTag> list = this.list();
+        List<ChaTag> list = chaTagMapper.selectAllTag();
         if (list != null) return new PageInfo<>(list);
         return null;
     }
@@ -39,10 +42,19 @@ public class ChaTagServiceImpl extends ServiceImpl<ChaTagMapper, ChaTag> impleme
 
     @Override
     public ReturnRes getTags() {
-        List<ChaTag> chaTags = list();
+        List<ChaTag> chaTags = chaTagMapper.selectAllTag();
         if (chaTags != null) {
             return new ReturnRes(true, chaTags, "查询成功");
         }
         return new ReturnRes(false, "查询失败");
+    }
+
+    @Override
+    public ReturnRes removeTag(ChaTag chaTag) {
+        chaTagMapMapper.deleteByTgid(chaTag.getTgid());
+        if (removeById(chaTag.getTgid())) {
+            return new ReturnRes(true, chaTag.getTgname() + "删除成功");
+        }
+        return new ReturnRes(false, "删除失败");
     }
 }

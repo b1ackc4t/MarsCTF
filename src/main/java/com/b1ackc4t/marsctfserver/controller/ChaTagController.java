@@ -1,6 +1,7 @@
 package com.b1ackc4t.marsctfserver.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.b1ackc4t.marsctfserver.dao.ChaTagMapper;
 import com.b1ackc4t.marsctfserver.pojo.ChaTag;
 import com.b1ackc4t.marsctfserver.pojo.ReturnRes;
 import com.b1ackc4t.marsctfserver.service.ChaTagService;
@@ -14,14 +15,16 @@ import java.util.*;
 public class ChaTagController {
 
     final ChaTagService chaTagService;
+    final ChaTagMapper chaTagMapper;
 
-    public ChaTagController(ChaTagService chaTagService) {
+    public ChaTagController(ChaTagService chaTagService, ChaTagMapper chaTagMapper) {
         this.chaTagService = chaTagService;
+        this.chaTagMapper = chaTagMapper;
     }
 
     @GetMapping("/admin/chaTag")
     public ReturnRes getAll() {
-        List<ChaTag> list = chaTagService.list();
+        List<ChaTag> list = chaTagMapper.selectAllTag();
         if (list != null) {
             return new ReturnRes(true, list);
         }
@@ -30,7 +33,7 @@ public class ChaTagController {
 
     @GetMapping("/admin/chaTag/{id:\\d+}")
     public ReturnRes getById(@PathVariable int id) {
-        ChaTag chaTag = chaTagService.getById(id);
+        ChaTag chaTag = chaTagMapper.selectTagById(id);
         if (chaTag != null) {
             return new ReturnRes(true, chaTag);
         }
@@ -66,13 +69,12 @@ public class ChaTagController {
                 return new ReturnRes(true, chaTag, "标签添加成功");
             }
         } else if (action.equals("update")) {
+            chaTag.setTname(null);
             if (chaTagService.updateById(chaTag)) {
                 return new ReturnRes(true, chaTag, "标签更新成功");
             }
         } else if (action.equals("remove")) {
-            if (chaTagService.removeById(chaTag.getTgid())) {
-                return new ReturnRes(true, chaTag, "标签删除成功");
-            }
+            return chaTagService.removeTag(chaTag);
         } else {
             return new ReturnRes(false, "操作暂不支持");
         }
@@ -81,14 +83,14 @@ public class ChaTagController {
 
     @GetMapping("/admin/chaTagAndType")
     public ReturnRes getChaTagAndType() {
-        List<ChaTag> list = chaTagService.list();
-        Map<String, List<String>>  map = new TreeMap<>();
+        List<ChaTag> list = chaTagMapper.selectAllTag();
+        Map<String, List<List>>  map = new TreeMap<>();
         for (ChaTag chaTag : list) {
             if (map.containsKey(chaTag.getTname())) {
-                map.get(chaTag.getTname()).add(chaTag.getTgname());
+                map.get(chaTag.getTname()).add(Arrays.asList(chaTag.getTgid(), chaTag.getTgname()));
             } else {
-                List<String> list1 = new ArrayList<>();
-                list1.add(chaTag.getTgname());
+                List<List> list1 = new ArrayList<>();
+                list1.add(Arrays.asList(chaTag.getTgid(), chaTag.getTgname()));
                 map.put(chaTag.getTname(), list1);
             }
         }
