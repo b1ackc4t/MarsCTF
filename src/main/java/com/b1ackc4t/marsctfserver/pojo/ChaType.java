@@ -9,4 +9,7 @@ public class ChaType {
     @TableId(type = IdType.AUTO)
     private Integer tid;
     private String tname;
+
+    private Integer chaNum;
+    private Integer learnNum;
 }

@@ -2,9 +2,11 @@ package com.b1ackc4t.marsctfserver.service.impl;
 
 import com.b1ackc4t.marsctfserver.dao.CTFFileMapper;
 import com.b1ackc4t.marsctfserver.pojo.CTFFile;
+import com.b1ackc4t.marsctfserver.pojo.LearnImage;
 import com.b1ackc4t.marsctfserver.pojo.ReturnRes;
 import com.b1ackc4t.marsctfserver.pojo.WpImage;
 import com.b1ackc4t.marsctfserver.service.CTFFileService;
+import com.b1ackc4t.marsctfserver.service.LearnImageService;
 import com.b1ackc4t.marsctfserver.service.WpImageService;
 import com.b1ackc4t.marsctfserver.util.generator.SnowFlakeUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -30,11 +32,13 @@ public class CTFFileServiceImpl extends ServiceImpl<CTFFileMapper, CTFFile> impl
 
     final CTFFileMapper ctfFileMapper;
     final WpImageService wpImageService;
+    final LearnImageService learnImageService;
 
     @Autowired
-    public CTFFileServiceImpl(CTFFileMapper ctfFileMapper, WpImageService wpImageService) {
+    public CTFFileServiceImpl(CTFFileMapper ctfFileMapper, WpImageService wpImageService, LearnImageService learnImageService) {
         this.ctfFileMapper = ctfFileMapper;
         this.wpImageService = wpImageService;
+        this.learnImageService = learnImageService;
     }
 
 
@@ -138,12 +142,35 @@ public class CTFFileServiceImpl extends ServiceImpl<CTFFileMapper, CTFFile> impl
         int lastIndexOf = fileName.lastIndexOf(".");
         String ext = lastIndexOf != -1 ? fileName.substring(lastIndexOf + 1) : "";
         String newName = String.valueOf(SnowFlakeUtil.generatorUid()) + "." + ext;
-        File dest = new File(imagePath + imageUrl, newName); // 为每个文件单独创建一个文件夹 文件夹名采用雪花算法
+        File dest = new File(imagePath + imageUrl, newName);
         try {
             WpImage wpImage = new WpImage();
             wpImage.setWid(wid);
             wpImage.setFpath(newName);
             wpImageService.save(wpImage);
+            file.transferTo(dest);  // 上传成功
+            return new ReturnRes(true, imageUrl + newName, "图片上传成功");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new ReturnRes(false, "上传失败，服务器错误");
+    }
+
+    @Override
+    public ReturnRes uploadImageForLearn(MultipartFile file, Integer lid) {
+        if (file.isEmpty()) {
+            return new ReturnRes(false, "上传失败，请选择文件");
+        }
+        String fileName = file.getOriginalFilename();
+        int lastIndexOf = fileName.lastIndexOf(".");
+        String ext = lastIndexOf != -1 ? fileName.substring(lastIndexOf + 1) : "";
+        String newName = String.valueOf(SnowFlakeUtil.generatorUid()) + "." + ext;
+        File dest = new File(imagePath + imageUrl, newName);
+        try {
+            LearnImage learnImage = new LearnImage();
+            learnImage.setLid(lid);
+            learnImage.setFpath(newName);
+            learnImageService.save(learnImage);
             file.transferTo(dest);  // 上传成功
             return new ReturnRes(true, imageUrl + newName, "图片上传成功");
         } catch (IOException e) {

@@ -2,6 +2,7 @@ package com.b1ackc4t.marsctfserver.service.impl;
 
 import com.b1ackc4t.marsctfserver.dao.ChaTagMapMapper;
 import com.b1ackc4t.marsctfserver.dao.ChaTagMapper;
+import com.b1ackc4t.marsctfserver.dao.LearnTagMapMapper;
 import com.b1ackc4t.marsctfserver.pojo.ChaTag;
 import com.b1ackc4t.marsctfserver.pojo.ReturnRes;
 import com.b1ackc4t.marsctfserver.service.ChaTagService;
@@ -17,16 +18,18 @@ public class ChaTagServiceImpl extends ServiceImpl<ChaTagMapper, ChaTag> impleme
 
     final ChaTagMapper chaTagMapper;
     final ChaTagMapMapper chaTagMapMapper;
+    final LearnTagMapMapper learnTagMapMapper;
 
-    public ChaTagServiceImpl(ChaTagMapper chaTagMapper, ChaTagMapMapper chaTagMapMapper) {
+    public ChaTagServiceImpl(ChaTagMapper chaTagMapper, ChaTagMapMapper chaTagMapMapper, LearnTagMapMapper learnTagMapMapper) {
         this.chaTagMapper = chaTagMapper;
         this.chaTagMapMapper = chaTagMapMapper;
+        this.learnTagMapMapper = learnTagMapMapper;
     }
 
     @Override
-    public PageInfo<ChaTag> getAllTagByPage(int pageNum, int pageSize) {
+    public PageInfo<ChaTag> getAllTagByPageForAdmin(int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
-        List<ChaTag> list = chaTagMapper.selectAllTag();
+        List<ChaTag> list = chaTagMapper.selectAllTagForAdmin();
         if (list != null) return new PageInfo<>(list);
         return null;
     }
@@ -51,7 +54,8 @@ public class ChaTagServiceImpl extends ServiceImpl<ChaTagMapper, ChaTag> impleme
 
     @Override
     public ReturnRes removeTag(ChaTag chaTag) {
-        chaTagMapMapper.deleteByTgid(chaTag.getTgid());
+        chaTagMapMapper.deleteByTgid(chaTag.getTgid()); // 删除掉题目中携带的标签
+        learnTagMapMapper.deleteLearnTagMapByTgid(chaTag.getTgid()); // 删除掉learning中携带的标签
         if (removeById(chaTag.getTgid())) {
             return new ReturnRes(true, chaTag.getTgname() + "删除成功");
         }

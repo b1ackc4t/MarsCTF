@@ -27,4 +27,12 @@ class ChallengeMapperTest {
         Challenge challenge = challengeMapper.selectByIdForAdmin(37);
         System.out.println();
     }
+
+    @Test
+    void fun03() {
+        Challenge challenge = new Challenge();
+        challenge.setCid(75);
+        challenge.setDownloadOk(1);
+        challengeMapper.updateById(challenge);
+    }
 }

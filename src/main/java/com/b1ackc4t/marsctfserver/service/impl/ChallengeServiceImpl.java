@@ -1,6 +1,7 @@
 package com.b1ackc4t.marsctfserver.service.impl;
 
 import com.b1ackc4t.marsctfserver.dao.ChallengeMapper;
+import com.b1ackc4t.marsctfserver.dao.LearnChaMapMapper;
 import com.b1ackc4t.marsctfserver.pojo.*;
 import com.b1ackc4t.marsctfserver.service.*;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -9,6 +10,7 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -21,15 +23,19 @@ public class ChallengeServiceImpl extends ServiceImpl<ChallengeMapper, Challenge
     final UserChaMapService userChaMapService;
     final UserService userService;
     final WriteupService writeupService;
+    final LearnChaMapMapper learnChaMapMapper;
+    final DockerService dockerService;
 
     @Autowired
-    public ChallengeServiceImpl(ChallengeMapper challengeMapper, ChaTagMapService chaTagMapService, CTFFileService ctfFileService, UserChaMapService userChaMapService, UserService userService, WriteupService writeupService) {
+    public ChallengeServiceImpl(ChallengeMapper challengeMapper, ChaTagMapService chaTagMapService, CTFFileService ctfFileService, UserChaMapService userChaMapService, UserService userService, WriteupService writeupService, LearnChaMapMapper learnChaMapMapper, DockerService dockerService) {
         this.challengeMapper = challengeMapper;
         this.chaTagMapService = chaTagMapService;
         this.ctfFileService = ctfFileService;
         this.userChaMapService = userChaMapService;
         this.userService = userService;
         this.writeupService = writeupService;
+        this.learnChaMapMapper = learnChaMapMapper;
+        this.dockerService = dockerService;
     }
 
     @Override
@@ -60,10 +66,22 @@ public class ChallengeServiceImpl extends ServiceImpl<ChallengeMapper, Challenge
         challenge.setCretime(new Date());
         challenge.setFinishedNum(0);
         challenge.setTagsView(null);
+        if (challenge.getIsDynamic()) {
+            challenge.setDownloadOk(0);
+        } else {
+            challenge.setDownloadOk(null);
+        }
         if (super.save(challenge)) {
             if (tags != null) {
                 for (Integer tag : tags) {
                     chaTagMapService.save(new ChaTagMap(challenge.getCid(), tag));
+                }
+            }
+            if (challenge.getIsDynamic()) {
+                try {
+                    dockerService.addDockerForCha(challenge.getImageName(), challenge.getCid());
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
             return true;
@@ -82,17 +100,34 @@ public class ChallengeServiceImpl extends ServiceImpl<ChallengeMapper, Challenge
         challenge.setMasterName(null);
         challenge.setFinishedNum(null);
         challenge.setTagsView(null);
-        Challenge originChallenge = challengeMapper.selectFidByCid(challenge.getCid());
-        Integer originFid = originChallenge != null ? originChallenge.getFid() : null;
-        List<Integer> tags = challenge.getTags();    // 更新标签
-        if (tags != null) {
-            chaTagMapService.removeByCid(challenge.getCid());
-            for (Integer tag : tags) {
-                chaTagMapService.save(new ChaTagMap(challenge.getCid(), tag));
-            }
+        if (challenge.getIsDynamic()) {
+            challenge.setDownloadOk(0);
+        } else {
+            challenge.setDownloadOk(null);
         }
+        Challenge originChallenge = challengeMapper.selectInfoByCid(challenge.getCid());
+        Integer originFid = originChallenge != null ? originChallenge.getFid() : null;
+        List<Integer> tags = challenge.getTags();
         challenge.setTags(null);
         if (super.updateById(challenge)) {
+            try {   // 删除过去的镜像 添加上新的镜像
+                if (originChallenge != null && originChallenge.getIsDynamic()) {
+                    if (originChallenge.getDownloadOk() == 1) {
+                        dockerService.removeDockerForCha(originChallenge.getImageName(), challenge.getCid());    // 移除题目相关的镜像以及开启的容器
+                    }
+                }
+                if (challenge.getIsDynamic()) {
+                    dockerService.addDockerForCha(challenge.getImageName(), challenge.getCid());
+                }
+            } catch (IOException | InterruptedException e) {
+                e.printStackTrace();
+            }
+            if (tags != null) {     // 更新标签
+                chaTagMapService.removeByCid(challenge.getCid());
+                for (Integer tag : tags) {
+                    chaTagMapService.save(new ChaTagMap(challenge.getCid(), tag));
+                }
+            }
             Integer fid = challenge.getFid();   // 若更新了附件 需要把以前的题目附件删除
             if (originFid != null) {
                 if (fid != null) {
@@ -103,6 +138,7 @@ public class ChallengeServiceImpl extends ServiceImpl<ChallengeMapper, Challenge
                     ctfFileService.removeCTFFile(originFid);
                 }
             }
+
             return true;
         }
         return false;
@@ -121,7 +157,15 @@ public class ChallengeServiceImpl extends ServiceImpl<ChallengeMapper, Challenge
             writeupService.removeWriteupForAdmin(new Writeup(wid));
         }
         userChaMapService.removeByCid(cid); // 移除题目的提交信息
-        Challenge challenge = challengeMapper.selectFidByCid(cid);
+        learnChaMapMapper.deleteLearnChaMapByCid(cid);  // 移除learning中关联的题目信息
+        Challenge challenge = challengeMapper.selectInfoByCid(cid);
+        try {
+            if (challenge.getDownloadOk() == 1) {
+                dockerService.removeDockerForCha(challenge.getImageName(), cid);    // 移除题目相关的镜像以及开启的容器
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         if (super.removeById(cid)) {
             if (challenge != null) {    // 移除题目的附件
                 Integer fid = challenge.getFid();
@@ -195,6 +239,19 @@ public class ChallengeServiceImpl extends ServiceImpl<ChallengeMapper, Challenge
         return challenge;
     }
 
+    public Boolean checkFlag(String flag, Integer uid, Integer cid) {
+        Challenge challenge = challengeMapper.selectStaticFlag(cid);
+        if (challenge.getIsDynamicFlag()) {
+            DockerContainer dockerContainer = challengeMapper.selectDynamicFlag(uid, cid);
+            if (dockerContainer != null) {
+                return flag.equals(dockerContainer.getFlag());
+            }
+        } else {
+            return flag.equals(challenge.getFlag());
+        }
+        return false;
+    }
+
     /**
      * 用户提交flag
      * @param user
@@ -211,7 +268,7 @@ public class ChallengeServiceImpl extends ServiceImpl<ChallengeMapper, Challenge
             userChaMap.setUid(user.getUid());
             userChaMap.setFinishTime(new Date());
             String status = userChaMapService.getStatusById(user.getUid(), cid);
-            if (flag.equals(challenge.getFlag())) {
+            if (checkFlag(flag, user.getUid(), challenge.getCid())) {
                 Challenge tmp = new Challenge();
                 tmp.setCid(cid);
                 if (status != null) {    // 是否是第一次提交这题的flag
@@ -343,4 +400,14 @@ public class ChallengeServiceImpl extends ServiceImpl<ChallengeMapper, Challenge
             return new ReturnRes(false, "查询失败");
         }
     }
+
+    @Override
+    public ReturnRes getSimpleAll() {
+        List<Challenge> challenges = challengeMapper.selectSimpleAll();
+        if (challenges != null) {
+            return new ReturnRes(true, challenges, "查询成功");
+        }
+        return new ReturnRes(false, "查询失败");
+    }
+
 }

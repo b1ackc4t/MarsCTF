@@ -36,6 +36,15 @@ public class Challenge {
     private Integer masterUid;
     private String masterName;
 
+    private Boolean isDynamic;
+    private String imageName;
+    private Integer srcPort;
+    private Double cpuLimit;
+    private Integer memLimit;
+    private Integer downloadOk; //0 正在下载中 1 下载完成 2 镜像不存在
+    private Boolean isDynamicFlag;
+    private String flagPrefix;
+
     public Challenge() {
 
     }

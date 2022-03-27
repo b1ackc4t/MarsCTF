@@ -4,5 +4,5 @@ import com.b1ackc4t.marsctfserver.pojo.WpImage;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 public interface WpImageService extends IService<WpImage> {
-    public void removeWpImageByWid(Integer wid);
+    void removeWpImageByWid(Integer wid);
 }

@@ -133,4 +133,8 @@ public class ChallengeController {
         return challengeService.getByIdForUser(id);
     }
 
+    @GetMapping("/challenge/simple")
+    public ReturnRes querySimple() {
+        return challengeService.getSimpleAll();
+    }
 }

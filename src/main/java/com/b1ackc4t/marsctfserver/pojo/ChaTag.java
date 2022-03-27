@@ -13,6 +13,8 @@ public class ChaTag {
 
 
     private String tname;
+    private Integer chaNum;
+    private Integer learnNum;
 
     public ChaTag() {
 

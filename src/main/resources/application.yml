@@ -3,6 +3,7 @@ marsctf:
   imagePath: E:\CTFImages\  # 图片的存放位置
   imageUrl: /api/img/ # 图片访问的url位置
 
+
 server:
   port: 80
 #  servlet:

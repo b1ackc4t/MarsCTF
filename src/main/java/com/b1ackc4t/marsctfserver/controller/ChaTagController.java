@@ -53,7 +53,7 @@ public class ChaTagController {
     @GetMapping("/admin/chaTag/{pageSize:\\d+}/{pageNum:\\d+}")
     public ReturnRes queryByPage(@PathVariable int pageSize,
                                  @PathVariable int pageNum) {
-        PageInfo<ChaTag> pageInfo = chaTagService.getAllTagByPage(pageNum, pageSize);
+        PageInfo<ChaTag> pageInfo = chaTagService.getAllTagByPageForAdmin(pageNum, pageSize);
         if (pageInfo != null) {
             return new ReturnRes(true, pageInfo);
         }
@@ -70,6 +70,8 @@ public class ChaTagController {
             }
         } else if (action.equals("update")) {
             chaTag.setTname(null);
+            chaTag.setChaNum(null);
+            chaTag.setLearnNum(null);
             if (chaTagService.updateById(chaTag)) {
                 return new ReturnRes(true, chaTag, "标签更新成功");
             }

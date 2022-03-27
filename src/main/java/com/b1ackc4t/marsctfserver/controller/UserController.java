@@ -2,6 +2,8 @@ package com.b1ackc4t.marsctfserver.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.b1ackc4t.marsctfserver.config.Constant;
+import com.b1ackc4t.marsctfserver.config.security.MyUserDetails;
+import com.b1ackc4t.marsctfserver.dao.UserMapper;
 import com.b1ackc4t.marsctfserver.pojo.ReturnRes;
 import com.b1ackc4t.marsctfserver.pojo.User;
 import com.b1ackc4t.marsctfserver.service.UserChaMapService;
@@ -25,19 +27,22 @@ public class UserController {
 
     final UserService userService;
     final UserChaMapService userChaMapService;
+    final UserMapper userMapper;
 
     @Autowired
-    public UserController(UserService userService, UserChaMapService userChaMapService) {
+    public UserController(UserService userService, UserChaMapService userChaMapService, UserMapper userMapper) {
 
         this.userService = userService;
         this.userChaMapService = userChaMapService;
+        this.userMapper = userMapper;
     }
 
-    @GetMapping("/userInfo/{id:\\d+}")
+    @GetMapping("/userInfo/{id:\\d+}")  // 废弃
     public ReturnRes queryOneById(@PathVariable int id) {
-        User user = userService.getById(id);
+        User user = userMapper.selectUserByIdForUser(id);
         if (user != null) {
             briefUserView(user);
+            user.setRankTitle();
             return new ReturnRes(true, user);
         } else {
             return new ReturnRes(false, "id not found");
@@ -49,11 +54,8 @@ public class UserController {
         if (name != null) {
             return queryOneByName(name);
         }
-        List<User> userList = userService.list();
+        List<User> userList = userMapper.selectAllUser();
         if (userList != null) {
-//            for (User user : userList) {
-//                briefUserView(user);
-//            }
             return new ReturnRes(true, userList);
         } else {
             return new ReturnRes(false);
@@ -61,9 +63,10 @@ public class UserController {
     }
 
     @GetMapping("/user/{id:\\d+}")
-    public ReturnRes queryOneByIdForAdmin(@PathVariable int id) {
-        User user = userService.getById(id);
+    public ReturnRes queryOneByIdForUser(@PathVariable int id) {
+        User user = userMapper.selectUserByIdForUser(id);
         if (user != null) {
+            user.setRankTitle();
             return new ReturnRes(true, user);
         } else {
             return new ReturnRes(false, "id not found");
@@ -134,10 +137,10 @@ public class UserController {
 
     @RequestMapping("/user/getMe")
     public ReturnRes getMe(Authentication authentication) {
-        String username = authentication.getName();
-        User user = userService.getByUserName(username);
+        Integer uid = ((MyUserDetails)authentication.getPrincipal()).getUid();
+        User user = userMapper.selectUserByIdForUser(uid);
         if (user != null) {
-            briefUserView(user);
+            user.setRankTitle();
             return new ReturnRes(true, user);
         } else {
             return new ReturnRes(false, "error, please repeat");
@@ -221,7 +224,9 @@ public class UserController {
         user.setCrypto(null);
         user.setMisc(null);
         user.setOther(null);
-        user.setScore(null);
+        user.setRank(null);
+        user.setLevel(null);
+        user.setTitle(null);
     }
 
     public void filterDangerOperation(User user) {

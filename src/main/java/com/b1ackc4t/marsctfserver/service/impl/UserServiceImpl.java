@@ -40,7 +40,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public PageInfo<User> getAllUserByPage(int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
-        List<User> list = userMapper.selectList(null);
+        List<User> list = userMapper.selectAllUser();
         if (list != null) return new PageInfo<>(list);
         return null;
     }

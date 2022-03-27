@@ -16,6 +16,7 @@ public interface ChallengeService extends IService<Challenge> {
     ReturnRes getForAllByPage(int pageSize, int pageNum);
     ReturnRes getForAllByPageByType(int pageSize, int pageNum, String type);
     ReturnRes getForAllByPageByTag(int pageSize, int pageNum, String tag);
+    ReturnRes getSimpleAll();
 
     // User级别
     ReturnRes getForUserByPage(Integer uid, int pageSize, int pageNum);
@@ -31,6 +32,7 @@ public interface ChallengeService extends IService<Challenge> {
     List<Challenge> getAllForAdmin();
     Challenge getByIdForAdmin(Integer cid);
     PageInfo<Challenge> getAllChallengeByPage(int pageNum, int pageSize);
+
 
 
 }

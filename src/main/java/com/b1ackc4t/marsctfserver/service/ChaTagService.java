@@ -8,7 +8,7 @@ import com.github.pagehelper.PageInfo;
 import java.util.List;
 
 public interface ChaTagService extends IService<ChaTag> {
-    PageInfo<ChaTag> getAllTagByPage(int pageNum, int pageSize);
+    PageInfo<ChaTag> getAllTagByPageForAdmin(int pageNum, int pageSize);
     ReturnRes getTagsByType(String type);
     ReturnRes getTags();
     ReturnRes removeTag(ChaTag chaTag);
