@@ -2,14 +2,12 @@ package com.b1ackc4t.marsctfserver.service.impl;
 
 import com.b1ackc4t.marsctfserver.dao.ChaTypeMapper;
 import com.b1ackc4t.marsctfserver.dao.LearningMapper;
-import com.b1ackc4t.marsctfserver.pojo.ChaTag;
-import com.b1ackc4t.marsctfserver.pojo.ChaType;
-import com.b1ackc4t.marsctfserver.pojo.Learning;
-import com.b1ackc4t.marsctfserver.pojo.ReturnRes;
+import com.b1ackc4t.marsctfserver.pojo.*;
 import com.b1ackc4t.marsctfserver.service.ChaTagService;
 import com.b1ackc4t.marsctfserver.service.ChaTypeService;
 import com.b1ackc4t.marsctfserver.service.ChallengeService;
 import com.b1ackc4t.marsctfserver.service.LearningService;
+import com.b1ackc4t.marsctfserver.util.CommonUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -82,5 +80,21 @@ public class ChaTypeServiceImpl extends ServiceImpl<ChaTypeMapper, ChaType> impl
             return new ReturnRes(true, chaType.getTname() + " 删除成功");
         }
         return new ReturnRes(false, "删除失败");
+    }
+
+    @Override
+    public ReturnRes searchTypeForAdmin(String key, String value, int pageSize, int pageNum) {
+        PageHelper.startPage(pageNum, pageSize);
+        String[] whiteList = new String[]{"tid", "tname"};
+        if (CommonUtil.strArrayIsHave(whiteList, key)) {
+            List<ChaType> chaTypes = chaTypeMapper.selectSearchForAdmin(key, "%" + value + "%");
+            if (chaTypes != null) {
+                return new ReturnRes(true, new PageInfo<>(chaTypes), "查询成功");
+            }
+            return new ReturnRes(false, "查询失败");
+        } else {
+            return new ReturnRes(false, "师傅请勿尝试不安全的参数");
+        }
+
     }
 }

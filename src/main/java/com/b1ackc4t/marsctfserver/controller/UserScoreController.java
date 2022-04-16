@@ -6,10 +6,7 @@ import com.b1ackc4t.marsctfserver.service.UserChaMapService;
 import com.b1ackc4t.marsctfserver.service.UserScoreService;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
@@ -48,5 +45,13 @@ public class UserScoreController {
     @GetMapping("/user/userScore/challengeStatus/{uid:\\d+}")
     public ReturnRes getChallengeStatus(@PathVariable Integer uid) {
         return userChaMapService.getChaStatusForUser(uid);
+    }
+
+    @GetMapping("/userScore/search/{pageSize:\\d+}/{pageNum:\\d+}")
+    public ReturnRes getScoreByPage(@PathVariable int pageSize,
+                                    @PathVariable int pageNum,
+                                    @RequestParam String key,
+                                    @RequestParam String value) {
+        return userScoreService.searchUserScore(key, value, pageNum, pageSize);
     }
 }

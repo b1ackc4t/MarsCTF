@@ -19,4 +19,5 @@ public interface LearningService extends IService<Learning> {
     ReturnRes removeLearning(Learning learning);
     ReturnRes updateLearning(Learning learning);
     ReturnRes getLearningByLidForAdminEdit(Integer lid);
+    ReturnRes searchLearnPage(String key, String value, int pageSize, int pageNum);
 }

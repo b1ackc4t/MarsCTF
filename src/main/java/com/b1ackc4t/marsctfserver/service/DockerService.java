@@ -18,5 +18,6 @@ public interface DockerService {
     public ReturnRes getContainerByPage(int pageNum, int pageSize);
     public ReturnRes removeContainerByConId(String id) throws IOException;
     public ReturnRes addTimeForAdmin(Integer uid, Integer cid, Integer second);
+    ReturnRes searchContainerByPage(String key, String value, int pageNum, int pageSize);
 
 }

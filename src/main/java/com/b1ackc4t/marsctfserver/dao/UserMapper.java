@@ -32,5 +32,8 @@ public interface UserMapper extends BaseMapper<User> {
     @Select("select * from mc_user")
     List<User> selectAllUser();
 
+    @Select("select * from mc_user where ${key} like #{value}")
+    List<User> selectSearchUser(String key, String value);
+
 
 }

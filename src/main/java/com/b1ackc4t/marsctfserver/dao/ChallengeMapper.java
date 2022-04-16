@@ -62,4 +62,7 @@ public interface ChallengeMapper extends BaseMapper<Challenge> {
     @Select("select flag from mc_docker_container where uid=#{uid} and cid=#{cid}")
     DockerContainer selectDynamicFlag(Integer uid, Integer cid);
 
+    @Select("select a.cid, a.cname, a.descr, a.score, b.tname, a.exposed, a.cretime, a.is_dynamic, a.download_ok from mc_challenge as a left join mc_cha_type as b on a.tid=b.tid where ${key} like #{value}")
+    List<Challenge> selectSearchAllForAdmin(String key, String value);
+
 }

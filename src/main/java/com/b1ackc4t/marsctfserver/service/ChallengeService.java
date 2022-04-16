@@ -32,6 +32,7 @@ public interface ChallengeService extends IService<Challenge> {
     List<Challenge> getAllForAdmin();
     Challenge getByIdForAdmin(Integer cid);
     PageInfo<Challenge> getAllChallengeByPage(int pageNum, int pageSize);
+    ReturnRes searchChallengeByPage(String key, String value, int pageNum, int pageSize);
 
 
 

@@ -2,6 +2,8 @@ package com.b1ackc4t.marsctfserver.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.util.ResourceUtils;
 import org.yaml.snakeyaml.Yaml;
 
@@ -12,9 +14,28 @@ import java.util.Set;
 
 public class YmlUtil {
 
-    public static String bootstrap_file = "classpath:application.yml";
+    public static String bootstrap_file = "application.yml";
 
     private static Map<String,String> result = new HashMap<>();
+
+    private static void copyInputStreamToFile(InputStream inputStream, File file)
+            throws IOException {
+
+        try (FileOutputStream outputStream = new FileOutputStream(file)) {
+
+            int read;
+            byte[] bytes = new byte[1024];
+
+            while ((read = inputStream.read(bytes)) != -1) {
+                outputStream.write(bytes, 0, read);
+            }
+
+            // commons-io
+            //IOUtils.copy(inputStream, outputStream);
+
+        }
+
+    }
 
     /**
      * 根据文件名获取yml的文件内容
@@ -28,8 +49,9 @@ public class YmlUtil {
         if(filePath == null) filePath = bootstrap_file;
         InputStream in = null;
         try {
-            File file = ResourceUtils.getFile(filePath);
-            in = new BufferedInputStream(new FileInputStream(file));
+            Resource resource = new ClassPathResource(filePath);
+            InputStream inputStream = resource.getInputStream();
+            in = new BufferedInputStream(inputStream);
             Yaml props = new Yaml();
             Object obj = props.loadAs(in,Map.class);
             Map<String,Object> param = (Map<String, Object>) obj;
@@ -47,7 +69,8 @@ public class YmlUtil {
                 }
             }
             return result;
-        } catch (FileNotFoundException e) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }finally {
             if (in != null){
                 try {
@@ -129,6 +152,8 @@ public class YmlUtil {
         for (Map.Entry<String, String> entry : entries) {
             System.out.println(entry.getKey()+"==="+entry.getValue());
         }
+        System.out.println(ymlByFileName.get("spring.datasource.druid.driver-class-name"));
+
     }
 
 

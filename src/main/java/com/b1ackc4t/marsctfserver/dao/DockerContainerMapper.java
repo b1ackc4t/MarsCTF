@@ -20,6 +20,9 @@ public interface DockerContainerMapper extends BaseMapper<DockerContainer> {
     @Select("select count(*) from mc_docker_container")
     int selectCount();
 
+    @Select("select count(*) from mc_docker_container where dst_port=#{port}")
+    int selectPort(Integer port);
+
     @Select("select a.*, b.image_name, b.src_port, b.cpu_limit, b.mem_limit from mc_docker_container as a left join mc_challenge as b on a.cid=b.cid")
     List<DockerContainer> selectAllContainer();
 
@@ -61,4 +64,7 @@ public interface DockerContainerMapper extends BaseMapper<DockerContainer> {
 
     @Update("update mc_docker_container set add_time=#{time}, add_count=#{count} where uid=#{uid} and cid=#{cid}")
     int updateTimeForUserByUidCid(Integer time, Integer count, Integer uid, Integer cid);
+
+    @Select("select (@i:=@i+1) as no, a.*, b.uname, c.cname from mc_docker_container as a left join mc_user as b on a.uid=b.uid left join mc_challenge as c on a.cid=c.cid inner join (select @i:=0) as it where ${key} like #{value}")
+    List<DockerContainer> selectSearchContainerForAdmin(String key, String value);
 }

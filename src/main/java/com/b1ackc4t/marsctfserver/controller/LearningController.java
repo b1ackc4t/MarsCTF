@@ -71,4 +71,12 @@ public class LearningController {
         Integer uid = ((MyUserDetails)authentication.getPrincipal()).getUid();
         return learningService.getChallengeByLidForUser(uid, lid);
     }
+
+    @GetMapping("/admin/learning/search/{pageSize:\\d+}/{pageNum:\\d+}")
+    public ReturnRes getLearningByPageForAdmin(@PathVariable int pageSize,
+                                               @PathVariable int pageNum,
+                                               @RequestParam String key,
+                                               @RequestParam String value) {
+        return learningService.searchLearnPage(key, value, pageSize, pageNum);
+    }
 }

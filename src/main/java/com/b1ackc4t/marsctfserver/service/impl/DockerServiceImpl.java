@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 @Service
@@ -55,7 +56,11 @@ public class DockerServiceImpl implements DockerService {
             return new ReturnRes(false, "用户最多同时开启" + config.getUserMaxContainer() + "个容器");
         }
         Challenge challenge = challengeMapper.selectContainerInfoByCid(cid);
-        Integer dstPort = CommonUtil.getAvailableTcpPort(config.getDockerMinPort(), config.getDockerMaxPort());
+        int testPort = new Random().nextInt(config.getDockerMaxPort() - config.getDockerMinPort());
+        while (dockerContainerMapper.selectPort(config.getDockerMinPort() + testPort) > 0) {
+            testPort = new Random().nextInt(config.getDockerMaxPort() - config.getDockerMinPort());
+        }
+        Integer dstPort = config.getDockerMinPort() + testPort;
         // 创建容器
         DockerContainer dockerContainer = new DockerContainer();
         dockerContainer.setName(String.format("%s-%s", String.valueOf(uid), UUID.randomUUID()));
@@ -219,5 +224,25 @@ public class DockerServiceImpl implements DockerService {
             return new ReturnRes(true, "延时成功");
         }
         return new ReturnRes(false, "延时失败");
+    }
+
+    @Override
+    public ReturnRes searchContainerByPage(String key, String value, int pageNum, int pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+        String[] whiteList = new String[]{"uid", "cname", "dstPort", "startTime", "endTime", "flag"};
+        if (CommonUtil.strArrayIsHave(whiteList, key)) {
+            List<DockerContainer> dockerContainers = dockerContainerMapper.selectSearchContainerForAdmin(key, "%" + value + "%");
+            Integer time = configMapper.selectTimeConfig();
+            if (dockerContainers != null) {
+                for (DockerContainer dockerContainer : dockerContainers) {
+                    dockerContainer.setEndTime(new Date(dockerContainer.getStartTime().getTime() + time * 1000 + dockerContainer.getAddTime() * 1000));
+                }
+                return new ReturnRes(true, new PageInfo<>(dockerContainers), "查询成功");
+            }
+            return new ReturnRes(false, "查询失败");
+        } else {
+            return new ReturnRes(false, "师傅请勿尝试不安全的参数");
+        }
+
     }
 }

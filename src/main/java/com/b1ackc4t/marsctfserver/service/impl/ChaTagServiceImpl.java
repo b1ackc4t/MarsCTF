@@ -6,6 +6,7 @@ import com.b1ackc4t.marsctfserver.dao.LearnTagMapMapper;
 import com.b1ackc4t.marsctfserver.pojo.ChaTag;
 import com.b1ackc4t.marsctfserver.pojo.ReturnRes;
 import com.b1ackc4t.marsctfserver.service.ChaTagService;
+import com.b1ackc4t.marsctfserver.util.CommonUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -60,5 +61,18 @@ public class ChaTagServiceImpl extends ServiceImpl<ChaTagMapper, ChaTag> impleme
             return new ReturnRes(true, chaTag.getTgname() + "删除成功");
         }
         return new ReturnRes(false, "删除失败");
+    }
+
+    @Override
+    public ReturnRes searchTagPage(String key, String value, int pageNum, int pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+        String[] whiteList = new String[]{"tgid", "tgname", "tname"};
+        if (CommonUtil.strArrayIsHave(whiteList, key)) {
+            List<ChaTag> list = chaTagMapper.selectSearchTagForAdmin(key, "%" + value + "%");
+            if (list != null) return new ReturnRes(true, new PageInfo<>(list), "搜索成功");
+            return new ReturnRes(false, "搜索失败");
+        } else {
+            return new ReturnRes(false, "师傅请勿尝试不安全的参数");
+        }
     }
 }

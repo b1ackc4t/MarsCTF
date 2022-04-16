@@ -137,4 +137,12 @@ public class ChallengeController {
     public ReturnRes querySimple() {
         return challengeService.getSimpleAll();
     }
+
+    @GetMapping("/admin/challenge/search/{pageSize:\\d+}/{pageNum:\\d+}")
+    public ReturnRes queryByPage(@PathVariable int pageSize,
+                                 @PathVariable int pageNum,
+                                 @RequestParam String key,
+                                 @RequestParam String value) {
+        return challengeService.searchChallengeByPage(key, value, pageNum, pageSize);
+    }
 }

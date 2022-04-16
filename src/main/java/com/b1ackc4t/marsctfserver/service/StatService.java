@@ -7,4 +7,5 @@ public interface StatService {
     ReturnRes getInfoCount();
     ReturnRes getChaCountByType();
     ReturnRes getTotalRanking(int num);
+    ReturnRes getRankView(int pageSize, int pageNum);
 }

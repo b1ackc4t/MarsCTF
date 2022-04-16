@@ -70,4 +70,12 @@ public class ChaTypeController {
             return new ReturnRes(false, "操作暂不支持");
         }
     }
+
+    @GetMapping("/admin/chaType/search/{pageSize:\\d+}/{pageNum:\\d+}")
+    public ReturnRes getByPageForAdmin(@PathVariable int pageSize,
+                                       @PathVariable int pageNum,
+                                       @RequestParam String key,
+                                       @RequestParam String value) {
+        return chaTypeService.searchTypeForAdmin(key, value, pageSize, pageNum);
+    }
 }

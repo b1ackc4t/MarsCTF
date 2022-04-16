@@ -26,4 +26,16 @@ public class CommonUtil {
         }
         return -1;
     }
+
+
+    public static boolean strArrayIsHave(String[] strs,String s){
+        int i = strs.length;
+        while (i-- > 0){
+            if(strs[i].equals(s)){
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

@@ -40,8 +40,14 @@ public class WriteupController {
 
     @GetMapping("/user/writeup/{pageSize:\\d+}/{pageNum:\\d+}")
     public ReturnRes queryByPageForUser(@PathVariable int pageSize,
-                                        @PathVariable int pageNum) {
-        return writeupService.getWriteupByPageForUser(pageSize, pageNum);
+                                        @PathVariable int pageNum,
+                                        @RequestParam(required = false) String type) {
+        if (type == null) {
+            return writeupService.getWriteupByPageForUser(pageSize, pageNum);
+        } else {
+            return writeupService.getWriteupByTypePageForUser(pageSize, pageNum, type);
+        }
+
     }
 
     @GetMapping("/user/writeup/{wid:\\d+}")
@@ -117,5 +123,34 @@ public class WriteupController {
         return writeupService.getWriteupByWidForMe(uid, wid);
     }
 
+    @GetMapping("/user/writeup/{uid:\\d+}/{pageSize:\\d+}/{pageNum:\\d+}")
+    public ReturnRes getWriteupByPageForUid(@PathVariable int pageSize,
+                                           @PathVariable int pageNum,
+                                           @PathVariable Integer uid) {
+        return writeupService.getWriteupByUidPageForUser(uid, pageSize, pageNum);
+    }
+
+    @GetMapping("/user/writeup/search/{pageSize:\\d+}/{pageNum:\\d+}")
+    public ReturnRes searchWriteupByPageForUser(@PathVariable int pageSize,
+                                            @PathVariable int pageNum,
+                                            @RequestParam String value) {
+        return writeupService.searchWriteupByPageForUser(value, pageSize, pageNum);
+    }
+
+    @GetMapping("/admin/writeup/search/{pageSize:\\d+}/{pageNum:\\d+}")
+    public ReturnRes queryByPageForAdmin(@PathVariable int pageSize,
+                                         @PathVariable int pageNum,
+                                         @RequestParam String key,
+                                         @RequestParam String value) {
+        return writeupService.searchWriteupByPage(key, value, pageSize, pageNum);
+    }
+
+    @GetMapping("/admin/writeup/uncheck/search/{pageSize:\\d+}/{pageNum:\\d+}")
+    public ReturnRes queryUnCheckByPageForAdmin(@PathVariable int pageSize,
+                                         @PathVariable int pageNum,
+                                         @RequestParam String key,
+                                         @RequestParam String value) {
+        return writeupService.searchUnCheckWriteupByPage(key, value, pageSize, pageNum);
+    }
 
 }

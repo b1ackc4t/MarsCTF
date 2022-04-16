@@ -1,15 +1,20 @@
 marsctf:
-  uploadPath: E:\CTFFiles\  # 题目附件的存放位置
-  imagePath: E:\CTFImages\  # 图片的存放位置
+  uploadPath: /home/user01/CTFFiles/  # 题目附件的存放位置
+  imagePath: /home/user01/CTFImages/  # 图片的存放位置
   imageUrl: /api/img/ # 图片访问的url位置
 
 
 server:
-  port: 80
+#  port: 80
+  port: 30345
 #  servlet:
 #    session:
 #      cookie:
 #        secure: true # 为了samesite：none 只对https使用cookie（仅localhost可以用http）
+  compression:
+    enabled: true
+    mime-types: application/javascript,text/css,application/json,application/xml,text/html,text/xml,text/plain
+
 
 spring:
   datasource:
@@ -17,7 +22,7 @@ spring:
       driver-class-name: com.mysql.cj.jdbc.Driver
       url: jdbc:mysql://localhost:3306/marsdb?serverTimezone=UTC
       username: root
-      password:
+      password: 123456
   servlet:
     multipart:
       max-file-size: 500MB

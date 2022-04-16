@@ -10,5 +10,6 @@ public interface ChaTypeService extends IService<ChaType> {
     ReturnRes updateType(ChaType chaType);
     ReturnRes saveType(ChaType chaType);
     ReturnRes removeType(ChaType chaType);
+    ReturnRes searchTypeForAdmin(String key, String value, int pageSize, int pageNum);
 
 }

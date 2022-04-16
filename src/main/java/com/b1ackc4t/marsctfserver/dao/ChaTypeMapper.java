@@ -20,4 +20,7 @@ public interface ChaTypeMapper extends BaseMapper<ChaType> {
 
     @Select("SELECT a.*, count(b.cid) as chaNum, (select count(tid) from mc_learning where tid=a.tid) as learnNum  FROM `mc_cha_type` as a left join mc_challenge as b on a.tid=b.tid group by a.tid order by tid")
     List<ChaType> selectAllForAdmin();
+
+    @Select("SELECT a.*, count(b.cid) as chaNum, (select count(tid) from mc_learning where tid=a.tid) as learnNum  FROM `mc_cha_type` as a left join mc_challenge as b on a.tid=b.tid where ${key} like #{value} group by a.tid order by tid")
+    List<ChaType> selectSearchForAdmin(String key, String value);
 }

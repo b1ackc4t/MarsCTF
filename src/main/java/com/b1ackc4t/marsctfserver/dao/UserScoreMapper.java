@@ -23,4 +23,7 @@ public interface UserScoreMapper {
     @Select("select c.tname, sum(b.score) as total_score from mc_user_cha_map as a left join mc_challenge as b  on a.cid=b.cid left join mc_cha_type as c on b.tid=c.tid where a.uid=#{uid} group by c.tname;")
     List<UserChartPojo> selectUserChart(Integer uid);
 
+    @Select("select uid, uname, web, re, crypto, pwn, misc, other, score from mc_user where ${key} like #{value}")
+    List<User> selectSearchScore(String key, String value);
+
 }

@@ -3,7 +3,10 @@ package com.b1ackc4t.marsctfserver.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.b1ackc4t.marsctfserver.config.Constant;
 import com.b1ackc4t.marsctfserver.config.security.MyUserDetails;
+import com.b1ackc4t.marsctfserver.dao.ChaCommentMapper;
+import com.b1ackc4t.marsctfserver.dao.LearnCommentMapper;
 import com.b1ackc4t.marsctfserver.dao.UserMapper;
+import com.b1ackc4t.marsctfserver.dao.WpCommentMapper;
 import com.b1ackc4t.marsctfserver.pojo.ReturnRes;
 import com.b1ackc4t.marsctfserver.pojo.User;
 import com.b1ackc4t.marsctfserver.service.UserChaMapService;
@@ -28,13 +31,19 @@ public class UserController {
     final UserService userService;
     final UserChaMapService userChaMapService;
     final UserMapper userMapper;
+    final ChaCommentMapper chaCommentMapper;
+    final WpCommentMapper wpCommentMapper;
+    final LearnCommentMapper learnCommentMapper;
 
     @Autowired
-    public UserController(UserService userService, UserChaMapService userChaMapService, UserMapper userMapper) {
+    public UserController(UserService userService, UserChaMapService userChaMapService, UserMapper userMapper, ChaCommentMapper chaCommentMapper, WpCommentMapper wpCommentMapper, LearnCommentMapper learnCommentMapper) {
 
         this.userService = userService;
         this.userChaMapService = userChaMapService;
         this.userMapper = userMapper;
+        this.chaCommentMapper = chaCommentMapper;
+        this.wpCommentMapper = wpCommentMapper;
+        this.learnCommentMapper = learnCommentMapper;
     }
 
     @GetMapping("/userInfo/{id:\\d+}")  // 废弃
@@ -176,6 +185,7 @@ public class UserController {
         user.setUpassword(new BCryptPasswordEncoder().encode(user.getUpassword()));
         user.setUid(ShortUUID.generateUid());
         user.setRegTime(new Date());
+        user.setSkill("");
         setAllScoreZero(user);
 
         try {
@@ -193,8 +203,9 @@ public class UserController {
 
     public ReturnRes remove(User user) {
         userChaMapService.removeByUid(user.getUid());   // 先删除用户的做题信息
-
-
+        chaCommentMapper.deleteByUid(user.getUid());    //删除用户的评论信息
+        wpCommentMapper.deleteByUid(user.getUid());
+        learnCommentMapper.deleteByUid(user.getUid());
         if (userService.removeById(user)) {
             briefUserView(user);
             return new ReturnRes(true, user);
@@ -204,6 +215,10 @@ public class UserController {
     }
 
     public ReturnRes update(User user) {
+        if (user.getUpassword() != null) {
+            user.setUpassword(new BCryptPasswordEncoder().encode(user.getUpassword()));
+        }
+
         if (userService.updateById(user)) {
             briefUserView(user);
             return new ReturnRes(true, user);
@@ -257,5 +272,13 @@ public class UserController {
     public boolean checkPermission(User operedUser, String username) {
         int uid = userService.getIdByUserName(username);
         return uid == operedUser.getUid();
+    }
+
+    @GetMapping("/user/search/{pageSize:\\d+}/{pageNum:\\d+}")
+    public ReturnRes searchUserByPage(@PathVariable int pageSize,
+                                      @PathVariable int pageNum,
+                                      @RequestParam String key,
+                                      @RequestParam String value) {
+        return userService.searchUserByPage(key, value, pageNum, pageSize);
     }
 }

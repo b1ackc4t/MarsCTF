@@ -23,4 +23,7 @@ public interface StatMapper {
 
     @Select("select a.uid, a.uname, a.score from mc_user as a order by a.score desc limit #{num}")
     List<User> selectRank(int num);
+
+    @Select("select a.uid, a.uname, a.score, a.unit, a.web, a.pwn, a.re, a.crypto, a.misc, a.other from mc_user as a order by a.score desc")
+    List<User> selectRankView();
 }

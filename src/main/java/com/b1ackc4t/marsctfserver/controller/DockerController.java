@@ -65,4 +65,12 @@ public class DockerController {
         Integer uid = ((MyUserDetails)authentication.getPrincipal()).getUid();
         return dockerService.addTimeForUser(uid, cid);
     }
+
+    @GetMapping("/admin/container/search/{pageSize:\\d+}/{pageNum:\\d+}")
+    public ReturnRes getContainerForUser(@PathVariable int pageSize,
+                                         @PathVariable int pageNum,
+                                         @RequestParam String key,
+                                         @RequestParam String value) {
+        return dockerService.searchContainerByPage(key, value, pageNum, pageSize);
+    }
 }

@@ -14,4 +14,5 @@ public interface CTFFileService extends IService<CTFFile> {
     ReturnRes download(Integer fid, HttpServletResponse httpServletResponse);
     ReturnRes uploadImageForWP(MultipartFile file, Integer wid);
     ReturnRes uploadImageForLearn(MultipartFile file, Integer lid);
+    ReturnRes uploadImageForNotice(MultipartFile file, Integer nid);
 }

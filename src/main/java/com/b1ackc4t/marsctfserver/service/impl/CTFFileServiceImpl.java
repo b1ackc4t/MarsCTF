@@ -1,12 +1,10 @@
 package com.b1ackc4t.marsctfserver.service.impl;
 
 import com.b1ackc4t.marsctfserver.dao.CTFFileMapper;
-import com.b1ackc4t.marsctfserver.pojo.CTFFile;
-import com.b1ackc4t.marsctfserver.pojo.LearnImage;
-import com.b1ackc4t.marsctfserver.pojo.ReturnRes;
-import com.b1ackc4t.marsctfserver.pojo.WpImage;
+import com.b1ackc4t.marsctfserver.pojo.*;
 import com.b1ackc4t.marsctfserver.service.CTFFileService;
 import com.b1ackc4t.marsctfserver.service.LearnImageService;
+import com.b1ackc4t.marsctfserver.service.NoticeImageService;
 import com.b1ackc4t.marsctfserver.service.WpImageService;
 import com.b1ackc4t.marsctfserver.util.generator.SnowFlakeUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -33,12 +31,14 @@ public class CTFFileServiceImpl extends ServiceImpl<CTFFileMapper, CTFFile> impl
     final CTFFileMapper ctfFileMapper;
     final WpImageService wpImageService;
     final LearnImageService learnImageService;
+    final NoticeImageService noticeImageService;
 
     @Autowired
-    public CTFFileServiceImpl(CTFFileMapper ctfFileMapper, WpImageService wpImageService, LearnImageService learnImageService) {
+    public CTFFileServiceImpl(CTFFileMapper ctfFileMapper, WpImageService wpImageService, LearnImageService learnImageService, NoticeImageService noticeImageService) {
         this.ctfFileMapper = ctfFileMapper;
         this.wpImageService = wpImageService;
         this.learnImageService = learnImageService;
+        this.noticeImageService = noticeImageService;
     }
 
 
@@ -171,6 +171,29 @@ public class CTFFileServiceImpl extends ServiceImpl<CTFFileMapper, CTFFile> impl
             learnImage.setLid(lid);
             learnImage.setFpath(newName);
             learnImageService.save(learnImage);
+            file.transferTo(dest);  // 上传成功
+            return new ReturnRes(true, imageUrl + newName, "图片上传成功");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new ReturnRes(false, "上传失败，服务器错误");
+    }
+
+    @Override
+    public ReturnRes uploadImageForNotice(MultipartFile file, Integer nid) {
+        if (file.isEmpty()) {
+            return new ReturnRes(false, "上传失败，请选择文件");
+        }
+        String fileName = file.getOriginalFilename();
+        int lastIndexOf = fileName.lastIndexOf(".");
+        String ext = lastIndexOf != -1 ? fileName.substring(lastIndexOf + 1) : "";
+        String newName = String.valueOf(SnowFlakeUtil.generatorUid()) + "." + ext;
+        File dest = new File(imagePath + imageUrl, newName);
+        try {
+            NoticeImage noticeImage = new NoticeImage();
+            noticeImage.setNid(nid);
+            noticeImage.setFpath(newName);
+            noticeImageService.save(noticeImage);
             file.transferTo(dest);  // 上传成功
             return new ReturnRes(true, imageUrl + newName, "图片上传成功");
         } catch (IOException e) {

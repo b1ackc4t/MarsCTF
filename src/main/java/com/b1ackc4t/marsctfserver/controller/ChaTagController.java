@@ -100,4 +100,12 @@ public class ChaTagController {
         return new ReturnRes(true, map);
     }
 
+    @GetMapping("/admin/chaTag/search/{pageSize:\\d+}/{pageNum:\\d+}")
+    public ReturnRes queryByPage(@PathVariable int pageSize,
+                                 @PathVariable int pageNum,
+                                 @RequestParam String key,
+                                 @RequestParam String value) {
+        return chaTagService.searchTagPage(key, value, pageNum, pageSize);
+    }
+
 }

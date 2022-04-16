@@ -4,6 +4,8 @@ import com.b1ackc4t.marsctfserver.dao.StatMapper;
 import com.b1ackc4t.marsctfserver.pojo.ReturnRes;
 import com.b1ackc4t.marsctfserver.pojo.User;
 import com.b1ackc4t.marsctfserver.service.StatService;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -62,6 +64,22 @@ public class StatServiceImpl implements StatService {
 
             }
             return new ReturnRes(true, userList, "查询成功");
+        }
+        return new ReturnRes(false, "查询失败");
+    }
+
+    @Override
+    public ReturnRes getRankView(int pageSize, int pageNum) {
+        PageHelper.startPage(pageNum, pageSize);
+        List<User> userList = statMapper.selectRankView();
+        int rank = pageSize * (pageNum - 1) + 1;
+        if (userList != null) {
+            for (User user : userList) {
+                user.setRank(rank++);
+                user.setRankTitle();
+
+            }
+            return new ReturnRes(true, new PageInfo<>(userList), "查询成功");
         }
         return new ReturnRes(false, "查询失败");
     }

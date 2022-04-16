@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,13 +31,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     final MyAuthenticationEntryPoint myAuthenticationEntryPoint;
 
+    final PersistentTokenRepository persistentTokenRepository;
+
     @Autowired
-    public SecurityConfig(MyAuthenticationSuccessHandler myAuthenticationSuccessHandler, MyAuthenticationFailureHandler myAuthenticationFailureHandler, MyLogoutSuccessHandler myLogoutSuccessHandler, MyUserDetailsService myUserDetailsService, MyAuthenticationEntryPoint myAuthenticationEntryPoint) {
+    public SecurityConfig(MyAuthenticationSuccessHandler myAuthenticationSuccessHandler, MyAuthenticationFailureHandler myAuthenticationFailureHandler, MyLogoutSuccessHandler myLogoutSuccessHandler, MyUserDetailsService myUserDetailsService, MyAuthenticationEntryPoint myAuthenticationEntryPoint, PersistentTokenRepository persistentTokenRepository) {
         this.myAuthenticationSuccessHandler = myAuthenticationSuccessHandler;
         this.myAuthenticationFailureHandler = myAuthenticationFailureHandler;
         this.myLogoutSuccessHandler = myLogoutSuccessHandler;
         this.myUserDetailsService = myUserDetailsService;
         this.myAuthenticationEntryPoint = myAuthenticationEntryPoint;
+        this.persistentTokenRepository = persistentTokenRepository;
     }
 
     @Bean
@@ -69,6 +73,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authenticationEntryPoint(myAuthenticationEntryPoint)
                 .and()
                 .cors()
+                .and()
+                .rememberMe()
+                .tokenRepository(persistentTokenRepository)
+                .userDetailsService(myUserDetailsService)
+                .tokenValiditySeconds(3600 * 24 * 7)
                 .and()
                 // 定义哪些URL需要被保护、哪些不需要被保护
                 .authorizeRequests() //不需要保护的URL

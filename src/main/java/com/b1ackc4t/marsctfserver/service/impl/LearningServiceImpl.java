@@ -1,18 +1,17 @@
 package com.b1ackc4t.marsctfserver.service.impl;
 
-import com.b1ackc4t.marsctfserver.dao.LearnChaMapMapper;
-import com.b1ackc4t.marsctfserver.dao.LearnImageMapper;
-import com.b1ackc4t.marsctfserver.dao.LearnTagMapMapper;
-import com.b1ackc4t.marsctfserver.dao.LearningMapper;
+import com.b1ackc4t.marsctfserver.dao.*;
 import com.b1ackc4t.marsctfserver.pojo.*;
 import com.b1ackc4t.marsctfserver.service.LearnChaMapService;
 import com.b1ackc4t.marsctfserver.service.LearnImageService;
 import com.b1ackc4t.marsctfserver.service.LearnTagMapService;
 import com.b1ackc4t.marsctfserver.service.LearningService;
+import com.b1ackc4t.marsctfserver.util.CommonUtil;
 import com.b1ackc4t.marsctfserver.util.MdUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -28,8 +27,10 @@ public class LearningServiceImpl extends ServiceImpl<LearningMapper, Learning> i
     final LearnTagMapMapper learnTagMapMapper;
     final LearnImageService learnImageService;
     final LearnImageMapper learnImageMapper;
+    final LearnCommentMapper learnCommentMapper;
 
-    public LearningServiceImpl(LearnTagMapService learnTagMapService, LearnChaMapService learnChaMapService, LearningMapper learningMapper, LearnChaMapMapper learnChaMapMapper, LearnTagMapMapper learnTagMapMapper, LearnImageService learnImageService, LearnImageMapper learnImageMapper) {
+    @Autowired
+    public LearningServiceImpl(LearnTagMapService learnTagMapService, LearnChaMapService learnChaMapService, LearningMapper learningMapper, LearnChaMapMapper learnChaMapMapper, LearnTagMapMapper learnTagMapMapper, LearnImageService learnImageService, LearnImageMapper learnImageMapper, LearnCommentMapper learnCommentMapper) {
         this.learnTagMapService = learnTagMapService;
         this.learnChaMapService = learnChaMapService;
         this.learningMapper = learningMapper;
@@ -37,6 +38,7 @@ public class LearningServiceImpl extends ServiceImpl<LearningMapper, Learning> i
         this.learnTagMapMapper = learnTagMapMapper;
         this.learnImageService = learnImageService;
         this.learnImageMapper = learnImageMapper;
+        this.learnCommentMapper = learnCommentMapper;
     }
 
     @Override
@@ -85,6 +87,7 @@ public class LearningServiceImpl extends ServiceImpl<LearningMapper, Learning> i
         Integer lid = learning.getLid();
         learnTagMapMapper.deleteLearnTagMapByLid(lid);
         learnChaMapMapper.deleteLearnChaMapByLid(lid);
+        learnCommentMapper.deleteByLid(lid);
         if (removeById(lid)) {
             learnImageService.removeLearnImageByLid(lid);
             return new ReturnRes(true, learning.getTitle() + " 删除成功");
@@ -97,8 +100,11 @@ public class LearningServiceImpl extends ServiceImpl<LearningMapper, Learning> i
         Integer lid = learning.getLid();
         List<Integer> tgids = learning.getTgids();
         List<Integer> cids = learning.getCids();
-
-        learning.setDescr(MdUtil.getDescrByMd(learning.getText()));
+        if (learning.getText() != null) {
+            learning.setDescr(MdUtil.getDescrByMd(learning.getText()));
+        } else {
+            learning.setDescr(null);
+        }
 
         learning.setTgids(null);
         learning.setCids(null);
@@ -220,5 +226,21 @@ public class LearningServiceImpl extends ServiceImpl<LearningMapper, Learning> i
             return new ReturnRes(true, challenges, "查询成功");
         }
         return new ReturnRes(false, "查询失败");
+    }
+
+    @Override
+    public ReturnRes searchLearnPage(String key, String value, int pageSize, int pageNum) {
+        PageHelper.startPage(pageNum, pageSize);
+        String[] whiteList = new String[]{"lid", "uname", "title", "tname", "creTime"};
+        if (CommonUtil.strArrayIsHave(whiteList, key)) {
+            List<Learning> list = learningMapper.selectSearchLearningForAdmin(key, "%" + value + "%");
+            if (list != null) {
+                return new ReturnRes(true, new PageInfo<>(list), "查询成功");
+            }
+            return new ReturnRes(false, "查询失败");
+        } else {
+            return new ReturnRes(false, "师傅请勿尝试不安全的参数");
+        }
+
     }
 }

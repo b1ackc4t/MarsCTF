@@ -37,7 +37,8 @@ public interface LearningMapper extends BaseMapper<Learning> {
     @Select("select lid from mc_learning where tid=#{tid}")
     List<Integer>  selectLidByTid(Integer tid);
 
-
+    @Select("select a.lid, a.title, a.uid, b.uname, a.tid, c.tname, a.cre_time from mc_learning as a left join mc_user as b on a.uid=b.uid left join mc_cha_type as c on a.tid=c.tid where ${key} like #{value}")
+    List<Learning> selectSearchLearningForAdmin(String key, String value);
 
 
 

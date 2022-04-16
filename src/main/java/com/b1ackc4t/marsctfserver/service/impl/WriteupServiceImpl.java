@@ -1,15 +1,19 @@
 package com.b1ackc4t.marsctfserver.service.impl;
 
+import com.b1ackc4t.marsctfserver.dao.WpCommentMapper;
 import com.b1ackc4t.marsctfserver.dao.WpImageMapper;
 import com.b1ackc4t.marsctfserver.dao.WriteupMapper;
+import com.b1ackc4t.marsctfserver.pojo.Challenge;
 import com.b1ackc4t.marsctfserver.pojo.ReturnRes;
 import com.b1ackc4t.marsctfserver.pojo.Writeup;
 import com.b1ackc4t.marsctfserver.service.WpImageService;
 import com.b1ackc4t.marsctfserver.service.WriteupService;
+import com.b1ackc4t.marsctfserver.util.CommonUtil;
 import com.b1ackc4t.marsctfserver.util.MdUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -20,11 +24,14 @@ public class WriteupServiceImpl extends ServiceImpl<WriteupMapper, Writeup> impl
     final WriteupMapper writeupMapper;
     final WpImageMapper wpImageMapper;
     final WpImageService wpImageService;
+    final WpCommentMapper wpCommentMapper;
 
-    public WriteupServiceImpl(WriteupMapper writeupMapper, WpImageMapper wpImageMapper, WpImageService wpImageService) {
+    @Autowired
+    public WriteupServiceImpl(WriteupMapper writeupMapper, WpImageMapper wpImageMapper, WpImageService wpImageService, WpCommentMapper wpCommentMapper) {
         this.writeupMapper = writeupMapper;
         this.wpImageMapper = wpImageMapper;
         this.wpImageService = wpImageService;
+        this.wpCommentMapper = wpCommentMapper;
     }
 
     @Override
@@ -121,6 +128,7 @@ public class WriteupServiceImpl extends ServiceImpl<WriteupMapper, Writeup> impl
      */
     @Override
     public ReturnRes removeWriteupForAdmin(Writeup writeup) {
+        wpCommentMapper.deleteByWid(writeup.getWid());
         if (removeById(writeup.getWid())) {
             wpImageService.removeWpImageByWid(writeup.getWid());
             return new ReturnRes(true, writeup.getWid(), writeup.getTitle() + " 删除成功");
@@ -188,7 +196,11 @@ public class WriteupServiceImpl extends ServiceImpl<WriteupMapper, Writeup> impl
             writeup.setTname(null);
             writeup.setStatus(false);
             writeup.setDone(false);
-            writeup.setDescr(MdUtil.getDescrByMd(writeup.getText()));
+            if (writeup.getText() != null) {
+                writeup.setDescr(MdUtil.getDescrByMd(writeup.getText()));
+            } else {
+                writeup.setDescr(null);
+            }
             writeup.setCreTime(new Date());
             writeup.setComment("");
             if (updateById(writeup)) {
@@ -197,5 +209,67 @@ public class WriteupServiceImpl extends ServiceImpl<WriteupMapper, Writeup> impl
             }
         }
         return new ReturnRes(false, "提交失败");
+    }
+
+    @Override
+    public ReturnRes getWriteupByUidPageForUser(Integer uid, int pageSize, int pageNum) {
+        PageHelper.startPage(pageNum, pageSize);
+        List<Writeup> writeups = writeupMapper.selectAllForUid(uid);
+        if (writeups != null) {
+            return new ReturnRes(true, new PageInfo<Writeup>(writeups), "查询成功");
+        }
+        return new ReturnRes(false, "查询失败");
+    }
+
+    @Override
+    public ReturnRes getWriteupByTypePageForUser(int pageSize, int pageNum, String tname) {
+        PageHelper.startPage(pageNum, pageSize);
+        List<Writeup> writeups = writeupMapper.selectAllForUserByType(tname);
+        if (writeups != null) {
+            return new ReturnRes(true, new PageInfo<Writeup>(writeups), "查询成功");
+        }
+        return new ReturnRes(false, "查询失败");
+    }
+
+    @Override
+    public ReturnRes searchWriteupByPage(String key, String value, int pageSize, int pageNum) {
+        PageHelper.startPage(pageNum, pageSize);
+        String[] whiteList = new String[]{"wid", "uname", "title", "creTime"};
+        if (CommonUtil.strArrayIsHave(whiteList, key)) {
+            List<Writeup> writeups = writeupMapper.selectSearchForAdmin(key, "%" + value + "%");
+            if (writeups != null) {
+                return new ReturnRes(true, new PageInfo<Writeup>(writeups), "查询成功");
+            }
+            return new ReturnRes(false, "查询失败");
+        } else {
+            return new ReturnRes(false, "师傅请勿尝试不安全的参数");
+        }
+
+    }
+
+    @Override
+    public ReturnRes searchWriteupByPageForUser(String value, int pageSize, int pageNum) {
+        PageHelper.startPage(pageNum, pageSize);
+        List<Writeup> writeups = writeupMapper.selectAllForUserSearch("%" + value + "%");
+        if (writeups != null) {
+            return new ReturnRes(true, new PageInfo<Writeup>(writeups), "查询成功");
+        }
+        return new ReturnRes(false, "查询失败");
+    }
+
+    @Override
+    public ReturnRes searchUnCheckWriteupByPage(String key, String value, int pageSize, int pageNum) {
+        PageHelper.startPage(pageNum, pageSize);
+        String[] whiteList = new String[]{"wid", "uname", "title", "creTime"};
+        if (CommonUtil.strArrayIsHave(whiteList, key)) {
+            List<Writeup> writeups = writeupMapper.selectSearchUnCheckForAdmin(key, "%" + value + "%");
+            if (writeups != null) {
+                return new ReturnRes(true, new PageInfo<Writeup>(writeups), "查询成功");
+            }
+            return new ReturnRes(false, "查询失败");
+        } else {
+            return new ReturnRes(false, "师傅请勿尝试不安全的参数");
+        }
+
     }
 }

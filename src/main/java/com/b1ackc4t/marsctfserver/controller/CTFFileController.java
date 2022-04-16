@@ -56,4 +56,10 @@ public class CTFFileController {
                                  @RequestParam Integer lid) {
         return ctfFileService.uploadImageForLearn(file, lid);
     }
+
+    @PostMapping("/admin/notice/uploadImage")
+    public ReturnRes uploadImageForNotice(@RequestParam(name = "file") MultipartFile file,
+                                         @RequestParam Integer nid) {
+        return ctfFileService.uploadImageForNotice(file, nid);
+    }
 }

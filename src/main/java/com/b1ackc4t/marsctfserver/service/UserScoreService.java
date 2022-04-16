@@ -14,4 +14,5 @@ public interface UserScoreService {
      */
     ReturnRes getChaRanking(Integer cid, Integer rankNum);
     ReturnRes getScoreChart(Integer uid);
+    ReturnRes searchUserScore(String key, String value, int pageNum, int pageSize);
 }
