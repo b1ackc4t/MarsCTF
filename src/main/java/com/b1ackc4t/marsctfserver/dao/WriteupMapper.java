@@ -19,7 +19,7 @@ public interface WriteupMapper extends BaseMapper<Writeup> {
     Writeup selectByWidForAdmin(Integer wid);
     @Select("select a.wid, a.cid, b.cname, d.tname, a.uid, c.uname, a.title, a.cre_time, a.done, a.status, a.score from mc_writeup as a left join mc_challenge as b on b.cid=a.cid left join mc_user as c on c.uid=a.uid left join mc_cha_type as d on b.tid=d.tid order by a.cre_time desc")
     List<Writeup> selectAllForAdmin();
-    @Select("select a.wid, a.cid, b.cname, d.tname, a.uid, c.uname, a.title, a.score, a.cre_time from mc_writeup as a left join mc_challenge as b on b.cid=a.cid left join mc_user as c on c.uid=a.uid left join mc_cha_type as d on b.tid=d.tid where a.status=1 and a.cid=#{cid} order by a.score desc limit #{num}")
+    @Select("select a.wid, a.cid, b.cname, d.tname, a.uid, c.uname, a.title, a.score, a.cre_time from mc_writeup as a left join mc_challenge as b on b.cid=a.cid left join mc_user as c on c.uid=a.uid left join mc_cha_type as d on b.tid=d.tid where a.status=1 and a.cid=#{cid} order by a.score desc, c.uname limit #{num}")
     List<Writeup> selectWriteupByCidForRank(Integer cid, Integer num);
     @Select("select a.wid, a.cid, b.cname, d.tname, a.uid, c.uname, a.title, a.descr, a.wp_tags, a.score, a.cre_time, a.done, a.status from mc_writeup as a left join mc_challenge as b on b.cid=a.cid left join mc_user as c on c.uid=a.uid left join mc_cha_type as d on b.tid=d.tid where a.uid=#{uid} order by a.cre_time desc")
     List<Writeup> selectAllForMe(Integer uid);

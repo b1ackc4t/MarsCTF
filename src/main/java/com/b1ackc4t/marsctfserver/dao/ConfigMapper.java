@@ -10,7 +10,7 @@ public interface ConfigMapper extends BaseMapper<Config> {
     @Select("select * from mc_config")
     Config selectConfig();
 
-    @Select("select docker_min_port, docker_max_port, frps_ip, docker_time, max_container_count, add_time_count, user_max_container from mc_config")
+    @Select("select docker_min_port, docker_max_port, ret_domain, docker_time, max_container_count, add_time_count, user_max_container from mc_config")
     Config selectDockerConfig();
 
     @Select("select docker_time from mc_config")

@@ -4,6 +4,7 @@ import com.b1ackc4t.marsctfserver.dao.ConfigMapper;
 import com.b1ackc4t.marsctfserver.pojo.Config;
 import com.b1ackc4t.marsctfserver.pojo.ReturnRes;
 import com.b1ackc4t.marsctfserver.service.ConfigService;
+import com.b1ackc4t.marsctfserver.util.DockerUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,8 +30,8 @@ public class ConfigServiceImpl extends ServiceImpl<ConfigMapper, Config> impleme
     @Override
     public ReturnRes getDefault() {
         Config config = new Config();
-        config.setDockerMinPort(20000);
-        config.setDockerMaxPort(30000);
+        config.setDockerMinPort(40000);
+        config.setDockerMaxPort(50000);
         config.setDockerTime(7200);
         config.setMaxContainerCount(100);
         config.setAddTimeCount(3);
@@ -39,8 +40,9 @@ public class ConfigServiceImpl extends ServiceImpl<ConfigMapper, Config> impleme
         config.setDockerHost("tcp://127.0.0.1:2375");
         config.setDockerRegistry("http://hub-mirror.c.163.com");
 
+        config.setIsMulti(false);
         config.setFrpcApiHost("127.0.0.1");
-        config.setFrpsIp("127.0.0.1");
+        config.setRetDomain("127.0.0.1");
         config.setFrpcApiPort("7400");
         config.setFrpcApiUser("admin");
         config.setFrpcApiPass("admin");
@@ -63,6 +65,7 @@ public class ConfigServiceImpl extends ServiceImpl<ConfigMapper, Config> impleme
     @Override
     public ReturnRes updateConfig(Config config) {
         if (update(config, null)) {
+            DockerUtil.updateClient();
             return new ReturnRes(true, "修改成功");
         }
         return new ReturnRes(true, "修改失败");

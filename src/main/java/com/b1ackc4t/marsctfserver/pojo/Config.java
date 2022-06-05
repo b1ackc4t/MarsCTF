@@ -6,7 +6,7 @@ import lombok.Data;
 public class Config {
     private Integer dockerMinPort;  //映射的最小端口
     private Integer dockerMaxPort;
-    private String frpsIp;
+    private String retDomain;
     private String frpcConfig;
     private String frpcApiHost;
     private String frpcApiPort;
@@ -19,4 +19,5 @@ public class Config {
     private Integer addTimeNum; // 每次容器续期的时长
     private String dockerHost;
     private String dockerRegistry;
+    private Boolean isMulti;
 }

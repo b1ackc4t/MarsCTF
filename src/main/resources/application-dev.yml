@@ -1,0 +1,51 @@
+marsctf:
+    uploadPath: /CTFFiles/  # 题目附件的存放位置
+    imagePath: /CTFImages/  # 图片的存放位置
+    imageUrl: /api/img/ # 图片访问的url位置
+    dockerCertKeyPath: /CertKey
+
+server:
+    #  port: 80
+    port: 8080
+    #  servlet:
+    #    session:
+    #      cookie:
+    #        secure: true # 为了samesite：none 只对https使用cookie（仅localhost可以用http）
+    servlet:
+        session:
+            timeout: 600m
+    compression:
+        enabled: true
+        mime-types: application/javascript,text/css,application/json,application/xml,text/html,text/xml,text/plain
+
+logging:
+    file:
+        path: /var/log/springboot
+spring:
+    datasource:
+        druid:
+            driver-class-name: com.mysql.cj.jdbc.Driver
+            url: jdbc:mysql://127.0.0.1:3306/marsdb?serverTimezone=UTC
+            username: root
+            password:
+    servlet:
+        multipart:
+            max-file-size: 500MB
+            max-request-size: 500MB
+    mvc:
+        static-path-pattern: /**
+    web:
+        resources:
+            static-locations: classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/,file:${marsctf.imagePath}
+
+mybatis-plus:
+    global-config:
+        db-config:
+            table-prefix: mc_
+    configuration:
+        map-underscore-to-camel-case: true
+
+#分页pageHelper
+pagehelper:
+    helper-dialect: mysql
+    reasonable: true

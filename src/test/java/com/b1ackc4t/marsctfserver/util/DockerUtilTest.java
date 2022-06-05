@@ -1,17 +1,23 @@
 package com.b1ackc4t.marsctfserver.util;
 
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.DockerCmdExecFactory;
 import com.github.dockerjava.api.model.SearchItem;
+import com.github.dockerjava.core.DefaultDockerClientConfig;
+import com.github.dockerjava.core.DockerClientBuilder;
+import com.github.dockerjava.core.DockerClientConfig;
+import com.github.dockerjava.jaxrs.JerseyDockerCmdExecFactory;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class DockerUtilTest {
     @Test
     void fun01() {
-        List<SearchItem> list = DockerUtil.searchDocker("library/hello-world");
-        System.out.println();
+
     }
 
     @Test

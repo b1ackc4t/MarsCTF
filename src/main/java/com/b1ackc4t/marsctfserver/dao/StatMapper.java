@@ -21,9 +21,9 @@ public interface StatMapper {
     @Select("select tname, count(*) as num from mc_challenge as a left join mc_cha_type as b on a.tid=b.tid group by b.tname")
     List<Map> selectChaCountByType();
 
-    @Select("select a.uid, a.uname, a.score from mc_user as a order by a.score desc limit #{num}")
+    @Select("select a.uid, a.uname, a.score from mc_user as a order by a.score desc, a.uname limit #{num}")
     List<User> selectRank(int num);
 
-    @Select("select a.uid, a.uname, a.score, a.unit, a.web, a.pwn, a.re, a.crypto, a.misc, a.other from mc_user as a order by a.score desc")
+    @Select("select a.uid, a.uname, a.score, a.unit, a.web, a.pwn, a.re, a.crypto, a.misc, a.other from mc_user as a order by a.score desc, a.uname")
     List<User> selectRankView();
 }

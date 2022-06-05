@@ -19,6 +19,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,20 +31,26 @@ public class DockerUtil {
         ApplicationContext context = SpringUtil.getApplicationContext();
         ConfigMapper configMapper = context.getBean(ConfigMapper.class);// 注意是Service，不是ServiceImpl
         Config panelConfig = configMapper.selectDockerUtilConfig();
+        Map<String, String> ymlByFileName = YmlUtil.getYmlByFileName(YmlUtil.bootstrap_file,"marsctf");
+
 
         DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
                 .withDockerHost(panelConfig.getDockerHost())
+                .withDockerTlsVerify(true)
+                // 证书的本地位置
+                .withDockerCertPath(ymlByFileName.get("marsctf.dockerCertKeyPath"))
+                // 私钥的本地位置
+                .withDockerConfig(ymlByFileName.get("marsctf.dockerCertKeyPath"))
 //                .withDockerTlsVerify(true)
 //                .withDockerCertPath("/home/user/.docker/certs")
 //                .withDockerConfig("/home/user/.docker")
                 .withRegistryUrl(panelConfig.getDockerRegistry())
-//                .withApiVersion("1.41") // optional
-//                .withRegistryUrl("https://index.docker.io/v1/")
-//                .withRegistryUsername("dockeruser")
-//                .withRegistryPassword("ilovedocker")
-//                .withRegistryEmail("dockeruser@github.com")
                 .build();
         return DockerClientBuilder.getInstance(config).build();
+    }
+
+    public static void updateClient() {
+        dockerClient = createClient();
     }
 
     public static Info info() {

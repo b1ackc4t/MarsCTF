@@ -172,6 +172,7 @@ public class UserController {
         }
         User user = new User(username, password);
         user.setRole(Constant.ROLE_USER);
+        user.setSkill("");
         return save(user);
 
     }
@@ -185,7 +186,6 @@ public class UserController {
         user.setUpassword(new BCryptPasswordEncoder().encode(user.getUpassword()));
         user.setUid(ShortUUID.generateUid());
         user.setRegTime(new Date());
-        user.setSkill("");
         setAllScoreZero(user);
 
         try {

@@ -91,7 +91,7 @@ public class DockerServiceImpl implements DockerService {
         }
         frpService.flushFrpConfig();
         ContainerView containerView = new ContainerView();
-        containerView.setUrl("http://" + config.getFrpsIp() + ":" + dstPort + "/");
+        containerView.setUrl("http://" + config.getRetDomain() + ":" + dstPort + "/");
         containerView.setEndTime(new Date(startTime.getTime() + config.getDockerTime() * 1000));
         containerView.setCount(config.getAddTimeCount());
         return new ReturnRes(true, containerView, "容器开启成功");
@@ -159,7 +159,7 @@ public class DockerServiceImpl implements DockerService {
         if (dockerContainer != null) {
             Config config = configMapper.selectDockerConfig();
             ContainerView containerView = new ContainerView();
-            containerView.setUrl("http://" + config.getFrpsIp() + ":" + dockerContainer.getDstPort() + "/");
+            containerView.setUrl("http://" + config.getRetDomain() + ":" + dockerContainer.getDstPort() + "/");
             containerView.setEndTime(new Date(dockerContainer.getStartTime().getTime() + config.getDockerTime() * 1000 + dockerContainer.getAddTime() * 1000));
             containerView.setCount(config.getAddTimeCount() - dockerContainer.getAddCount());
             return new ReturnRes(true, containerView, "查询成功");

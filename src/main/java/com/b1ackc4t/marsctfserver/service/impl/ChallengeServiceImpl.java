@@ -73,6 +73,12 @@ public class ChallengeServiceImpl extends ServiceImpl<ChallengeMapper, Challenge
         challenge.setTagsView(null);
         if (challenge.getIsDynamic()) {
             challenge.setDownloadOk(0);
+            if (challenge.getCpuLimit() == null) {
+                challenge.setCpuLimit(0.5);
+            }
+            if (challenge.getMemLimit() == null) {
+                challenge.setMemLimit(128);
+            }
         } else {
             challenge.setDownloadOk(null);
         }
@@ -120,7 +126,7 @@ public class ChallengeServiceImpl extends ServiceImpl<ChallengeMapper, Challenge
         challenge.setTags(null);
         if (super.updateById(challenge)) {
             try {   // 删除过去的镜像 添加上新的镜像
-                if (challenge.getDownloadOk() == 0) {
+                if (challenge.getDownloadOk() != null && challenge.getDownloadOk() == 0) {
                     if (originChallenge != null && originChallenge.getIsDynamic()) {
                         if (originChallenge.getDownloadOk() != null && originChallenge.getDownloadOk() == 1) {
                             dockerService.removeDockerForCha(originChallenge.getImageName(), challenge.getCid());    // 移除题目相关的镜像以及开启的容器
