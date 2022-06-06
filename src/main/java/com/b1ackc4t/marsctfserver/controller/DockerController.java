@@ -73,4 +73,9 @@ public class DockerController {
                                          @RequestParam String value) {
         return dockerService.searchContainerByPage(key, value, pageNum, pageSize);
     }
+
+    @GetMapping("/admin/container/check")
+    public ReturnRes check() {
+        return dockerService.check();
+    }
 }

@@ -20,4 +20,5 @@ public class Config {
     private String dockerHost;
     private String dockerRegistry;
     private Boolean isMulti;
+    private Boolean isTls;
 }

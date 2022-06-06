@@ -19,6 +19,6 @@ public interface ConfigMapper extends BaseMapper<Config> {
     @Select("select add_time_count, add_time_num from mc_config")
     Config selectAddTimeForUserConfig();
 
-    @Select("select docker_host, docker_registry from mc_config")
+    @Select("select docker_host, docker_registry, is_tls from mc_config")
     Config selectDockerUtilConfig();
 }

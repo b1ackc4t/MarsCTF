@@ -31,21 +31,24 @@ public class DockerUtil {
         ApplicationContext context = SpringUtil.getApplicationContext();
         ConfigMapper configMapper = context.getBean(ConfigMapper.class);// 注意是Service，不是ServiceImpl
         Config panelConfig = configMapper.selectDockerUtilConfig();
-        Map<String, String> ymlByFileName = YmlUtil.getYmlByFileName(YmlUtil.bootstrap_file,"marsctf");
-
-
-        DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
-                .withDockerHost(panelConfig.getDockerHost())
-                .withDockerTlsVerify(true)
-                // 证书的本地位置
-                .withDockerCertPath(ymlByFileName.get("marsctf.dockerCertKeyPath"))
-                // 私钥的本地位置
-                .withDockerConfig(ymlByFileName.get("marsctf.dockerCertKeyPath"))
-//                .withDockerTlsVerify(true)
-//                .withDockerCertPath("/home/user/.docker/certs")
-//                .withDockerConfig("/home/user/.docker")
-                .withRegistryUrl(panelConfig.getDockerRegistry())
-                .build();
+        DockerClientConfig config = null;
+        if (panelConfig.getIsTls()) {
+            Map<String, String> ymlByFileName = YmlUtil.getYmlByFileName(YmlUtil.bootstrap_file,"marsctf");
+            config = DefaultDockerClientConfig.createDefaultConfigBuilder()
+                    .withDockerHost(panelConfig.getDockerHost())
+                    .withDockerTlsVerify(true)
+                    // 证书的本地位置
+                    .withDockerCertPath(ymlByFileName.get("marsctf.dockerCertKeyPath"))
+                    // 私钥的本地位置
+                    .withDockerConfig(ymlByFileName.get("marsctf.dockerCertKeyPath"))
+                    .withRegistryUrl(panelConfig.getDockerRegistry())
+                    .build();
+        } else {
+            config = DefaultDockerClientConfig.createDefaultConfigBuilder()
+                    .withDockerHost(panelConfig.getDockerHost())
+                    .withRegistryUrl(panelConfig.getDockerRegistry())
+                    .build();
+        }
         return DockerClientBuilder.getInstance(config).build();
     }
 

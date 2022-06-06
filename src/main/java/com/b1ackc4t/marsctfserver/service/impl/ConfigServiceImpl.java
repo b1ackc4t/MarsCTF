@@ -6,6 +6,7 @@ import com.b1ackc4t.marsctfserver.pojo.ReturnRes;
 import com.b1ackc4t.marsctfserver.service.ConfigService;
 import com.b1ackc4t.marsctfserver.util.DockerUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.github.dockerjava.api.model.Info;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,6 +38,7 @@ public class ConfigServiceImpl extends ServiceImpl<ConfigMapper, Config> impleme
         config.setAddTimeCount(3);
         config.setAddTimeNum(3600);
         config.setUserMaxContainer(1);
+        config.setIsTls(false);
         config.setDockerHost("tcp://127.0.0.1:2375");
         config.setDockerRegistry("http://hub-mirror.c.163.com");
 
@@ -66,8 +68,14 @@ public class ConfigServiceImpl extends ServiceImpl<ConfigMapper, Config> impleme
     public ReturnRes updateConfig(Config config) {
         if (update(config, null)) {
             DockerUtil.updateClient();
-            return new ReturnRes(true, "修改成功");
+            try {
+                Info info = DockerUtil.info();
+                return new ReturnRes(true, "修改成功 docker API有效");
+            } catch (Exception e) {
+                e.printStackTrace();
+                return new ReturnRes(false, "修改成功 但docker API无效！");
+            }
         }
-        return new ReturnRes(true, "修改失败");
+        return new ReturnRes(false, "修改失败");
     }
 }

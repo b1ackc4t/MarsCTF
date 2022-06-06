@@ -15,6 +15,12 @@ import java.util.Set;
 public class YmlUtil {
 
     public static String bootstrap_file = "application.yml";
+    public static String base_file = "application.yml";
+
+    static {
+        Map<String, String> ymlByFileName = YmlUtil.getYmlByFileName(YmlUtil.bootstrap_file,"spring", "profiles");
+        bootstrap_file = String.format("application-%s.yml", ymlByFileName.get("spring.profiles.active"));
+    }
 
     private static Map<String,String> result = new HashMap<>();
 
@@ -147,12 +153,7 @@ public class YmlUtil {
 
     public static void main(String[] args) throws FileNotFoundException {
 
-        Map<String, String> ymlByFileName = YmlUtil.getYmlByFileName(YmlUtil.bootstrap_file,"spring", "datasource", "druid");
-        Set<Map.Entry<String, String>> entries = ymlByFileName.entrySet();
-        for (Map.Entry<String, String> entry : entries) {
-            System.out.println(entry.getKey()+"==="+entry.getValue());
-        }
-        System.out.println(ymlByFileName.get("spring.datasource.druid.driver-class-name"));
+        System.out.println(YmlUtil.bootstrap_file);
 
     }
 

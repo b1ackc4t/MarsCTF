@@ -10,6 +10,7 @@ import com.b1ackc4t.marsctfserver.util.CommonUtil;
 import com.b1ackc4t.marsctfserver.util.DockerPullImageCallback;
 import com.b1ackc4t.marsctfserver.util.DockerUtil;
 import com.github.dockerjava.api.command.CreateContainerResponse;
+import com.github.dockerjava.api.model.Info;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -244,5 +245,11 @@ public class DockerServiceImpl implements DockerService {
             return new ReturnRes(false, "师傅请勿尝试不安全的参数");
         }
 
+    }
+
+    @Override
+    public ReturnRes check() {
+        Info info = DockerUtil.info();
+        return new ReturnRes(true, info);
     }
 }
