@@ -1,11 +1,12 @@
 # MarsCTF
 
 Vue+Springboot开发的CTF学习平台，提供动态靶机、学习模块、writeup模块等等CTF平台的核心功能。提供docker版本。
-前端仓库：[https://github.com/b1ackc4t/MarsCTF-client](https://github.com/b1ackc4t/MarsCTF-client)
 
 **演示视频：**[https://www.bilibili.com/video/BV1eA4y1o73C](https://www.bilibili.com/video/BV1eA4y1o73C)
 
 ![image-20220605194440513](.assert/image-20220605194440513.png)
+
+**Tips**: 前后端分离项目，本仓库为后端，前端仓库在[https://github.com/b1ackc4t/MarsCTF-client](https://github.com/b1ackc4t/MarsCTF-client)
 
 # 快速启动
 
