@@ -112,7 +112,11 @@ chmod +x ./startup.sh
    
 4. 公告、排行榜等其他功能
 
+# docker赛题编写
 
+编写模式参考[https://github.com/CTFTraining/CTFTraining](https://github.com/CTFTraining/CTFTraining)
+
+动态flag通过"FLAG"环境变量注入
 
 # 声明
 
