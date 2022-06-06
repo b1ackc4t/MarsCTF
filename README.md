@@ -93,22 +93,22 @@ chmod +x ./startup.sh
 1. 学习模块
    * 提供体系化学习资料，并和挑战中的CTF题目相关联
    
-   ![img](.assert/wps1.jpg)
+   ![image-20220606144449132](.assert/image-20220606144449132.png)
    
-   ![img](.assert/wps2.jpg)
+   ![image-20220606144500774](.assert/image-20220606144500774.png)
    
 2. 挑战模块
    * 提供CTF题目，支持动态靶机
    * 题目类型、标签均可扩展
    
-   ![img](.assert/wps3.jpg)
+   ![image-20220606144549736](.assert/image-20220606144549736.png)
    
-   ![img](.assert/wps5.jpg)
+   ![image-20220606144520523](.assert/image-20220606144520523.png)
    
 3. writeup模块
    * 分享解题思路的平台
    
-   ![img](.assert/wps6.jpg)
+   ![image-20220606144606804](.assert/image-20220606144606804.png)
    
 4. 公告、排行榜等其他功能
 
