@@ -5,6 +5,7 @@ import com.b1ackc4t.marsctfserver.pojo.DockerContainer;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -65,4 +66,6 @@ public interface ChallengeMapper extends BaseMapper<Challenge> {
     @Select("select a.cid, a.cname, a.descr, a.score, b.tname, a.exposed, a.cretime, a.is_dynamic, a.download_ok from mc_challenge as a left join mc_cha_type as b on a.tid=b.tid where ${key} like #{value}")
     List<Challenge> selectSearchAllForAdmin(String key, String value);
 
+    @Update("update mc_challenge set finished_num=#{finished_num} where cid=#{cid}")
+    int updateFinishNum(Integer cid, Integer num);
 }

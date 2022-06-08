@@ -285,14 +285,11 @@ public class ChallengeServiceImpl extends ServiceImpl<ChallengeMapper, Challenge
             userChaMap.setFinishTime(new Date());
             String status = userChaMapService.getStatusById(user.getUid(), cid);
             if (checkFlag(flag, user.getUid(), challenge.getCid())) {
-                Challenge tmp = new Challenge();
-                tmp.setCid(cid);
                 if (status != null) {    // 是否是第一次提交这题的flag
                     if (status.equals(SUCCESS_STATUS)) {
                         return new ReturnRes(true, "您已经提交过flag，无需反复提交");
                     } else {
-                        tmp.setFinishedNum(challenge.getFinishedNum() + 1);
-                        updateById(tmp);
+                        challengeMapper.updateFinishNum(cid, challenge.getFinishedNum() + 1);
                         userChaMap.setRank(challenge.getFinishedNum() + 1);
                         userChaMap.setStatus(SUCCESS_STATUS);
                         userChaMapService.updateById(userChaMap);
@@ -301,8 +298,7 @@ public class ChallengeServiceImpl extends ServiceImpl<ChallengeMapper, Challenge
                         return new ReturnRes(true, "flag提交正确，恭喜师傅！！！");
                     }
                 } else {    // 第一次提交flag
-                    tmp.setFinishedNum(challenge.getFinishedNum() + 1);
-                    updateById(tmp);
+                    challengeMapper.updateFinishNum(cid, challenge.getFinishedNum() + 1);
                     userChaMap.setRank(challenge.getFinishedNum() + 1);
                     userChaMap.setStatus(SUCCESS_STATUS);
                     userChaMapService.save(userChaMap);
