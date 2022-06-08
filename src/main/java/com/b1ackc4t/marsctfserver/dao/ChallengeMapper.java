@@ -67,5 +67,5 @@ public interface ChallengeMapper extends BaseMapper<Challenge> {
     List<Challenge> selectSearchAllForAdmin(String key, String value);
 
     @Update("update mc_challenge set finished_num=#{finished_num} where cid=#{cid}")
-    int updateFinishNum(Integer cid, Integer num);
+    int updateFinishNum(Integer cid, Integer finished_num);
 }
