@@ -39,7 +39,7 @@ public class ConfigServiceImpl extends ServiceImpl<ConfigMapper, Config> impleme
         config.setAddTimeNum(3600);
         config.setUserMaxContainer(1);
         config.setIsTls(false);
-        config.setDockerHost("tcp://127.0.0.1:2375");
+        config.setDockerHost("unix:///var/run/docker.sock");
         config.setDockerRegistry("http://hub-mirror.c.163.com");
 
         config.setIsMulti(false);
