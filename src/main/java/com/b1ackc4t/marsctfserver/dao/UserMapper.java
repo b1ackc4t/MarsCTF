@@ -13,7 +13,7 @@ public interface UserMapper extends BaseMapper<User> {
     @Select("select * from mc_user where uname=#{uname} and upassword=#{upassword}")
     User selectByUserNameAndPassword(String uname, String upassword);
 
-    @Select("select uid, upassword, role from mc_user where uname=#{uname}")
+    @Select("select * from mc_user where uname=#{uname}")
     User selectLoginByUserName(String uname);
 
 

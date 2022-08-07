@@ -11,7 +11,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Component
 public class MyUserDetailsService implements UserDetailsService {
@@ -25,9 +27,9 @@ public class MyUserDetailsService implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException(username + "not found");
         }
-        List<GrantedAuthority> list = new ArrayList<>();
-        list.add(new SimpleGrantedAuthority(user.getRole()));
-        MyUserDetails res = new MyUserDetails(user.getUid(), username, user.getUpassword(), list);
+        Set<String> set = new HashSet<>();
+        set.add(user.getRole());
+        MyUserDetails res = new MyUserDetails(user.getUid(), user, set);
         return res;
     }
 }

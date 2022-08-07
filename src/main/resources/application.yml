@@ -1,3 +1,17 @@
+marsctf:
+  appName: marsctf
+  uploadPath: /CTFFiles/  # 题目附件的存放位置
+  imagePath: /CTFImages/  # 图片的存放位置
+  imageUrl: /api/img/ # 图片访问的url位置
+  dockerCertKeyPath: /CertKey
+  log:
+    path: e:/log
+  token:
+    header: Authorization
+    secret: abcdefghijklmnopqrstuvwxyzfwagfwagwagasfwfwqrstuvwxyzfwagfwagwagasfqrstuvwxyzfwagfwagwagasf
+    expireTime: 3600
+
 spring:
   profiles:
-    active: prod
+    active: dev
+

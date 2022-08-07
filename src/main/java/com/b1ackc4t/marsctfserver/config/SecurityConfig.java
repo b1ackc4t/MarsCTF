@@ -3,20 +3,15 @@ package com.b1ackc4t.marsctfserver.config;
 import com.b1ackc4t.marsctfserver.config.security.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
@@ -33,27 +28,28 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     final PersistentTokenRepository persistentTokenRepository;
 
+    final JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter;
+
     @Autowired
-    public SecurityConfig(MyAuthenticationSuccessHandler myAuthenticationSuccessHandler, MyAuthenticationFailureHandler myAuthenticationFailureHandler, MyLogoutSuccessHandler myLogoutSuccessHandler, MyUserDetailsService myUserDetailsService, MyAuthenticationEntryPoint myAuthenticationEntryPoint, PersistentTokenRepository persistentTokenRepository) {
+    public SecurityConfig(MyAuthenticationSuccessHandler myAuthenticationSuccessHandler, MyAuthenticationFailureHandler myAuthenticationFailureHandler, MyLogoutSuccessHandler myLogoutSuccessHandler, MyUserDetailsService myUserDetailsService, MyAuthenticationEntryPoint myAuthenticationEntryPoint, PersistentTokenRepository persistentTokenRepository, JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter) {
         this.myAuthenticationSuccessHandler = myAuthenticationSuccessHandler;
         this.myAuthenticationFailureHandler = myAuthenticationFailureHandler;
         this.myLogoutSuccessHandler = myLogoutSuccessHandler;
         this.myUserDetailsService = myUserDetailsService;
         this.myAuthenticationEntryPoint = myAuthenticationEntryPoint;
         this.persistentTokenRepository = persistentTokenRepository;
+        this.jwtAuthenticationTokenFilter = jwtAuthenticationTokenFilter;
     }
 
+    /**
+     * 解决 无法直接注入 AuthenticationManager
+     */
     @Bean
-    public UserDetailsService userDetailsService() {
-        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-        List<GrantedAuthority> list = new ArrayList<>();
-        list.add(new SimpleGrantedAuthority("user"));
-        User user = new User("user", new BCryptPasswordEncoder().encode("password"), list);
-
-        manager.createUser(user);
-        return manager;
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception
+    {
+        return super.authenticationManagerBean();
     }
-
 
     @Override
     protected void configure(AuthenticationManagerBuilder builder) throws Exception{
@@ -64,13 +60,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.formLogin()                    //  定义当需要用户登录时候，转到的登录页面。
-                          .loginPage("/api/login") //自定义登录页面
-                .loginProcessingUrl("/api/login") //自定义登录接口地址
-                .successHandler(myAuthenticationSuccessHandler)
-                .failureHandler(myAuthenticationFailureHandler)
-                .and()
+//                .loginProcessingUrl("/api/login")
+                .disable()
+//                .successHandler(myAuthenticationSuccessHandler)
+//                .failureHandler(myAuthenticationFailureHandler)
+//                .and()
                 .exceptionHandling()
                 .authenticationEntryPoint(myAuthenticationEntryPoint)
+                .and()
+                // 基于token，所以不需要session
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .cors()
                 .and()
@@ -93,9 +92,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .logout().logoutUrl("/api/logout").logoutSuccessHandler(myLogoutSuccessHandler) // 登出
                 .and()
-                .csrf().disable();
-
-//        http.addFilterAt(MyUserProcessFilterBean(), UsernamePasswordAuthenticationFilter.class);
+                .csrf().disable()
+                .headers().frameOptions().disable();
+        // 添加JWT filter
+        http.addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
 
     }
