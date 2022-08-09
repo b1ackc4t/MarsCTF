@@ -13,6 +13,7 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import javax.annotation.PostConstruct;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,6 +60,14 @@ public class WebConfig implements WebMvcConfigurer {
 
     }
 
+    /*
+     * 解决druid 日志报错：discard long time none received connection:xxx
+     * */
+    @PostConstruct
+    public void setProperties(){
+        System.setProperty("druid.mysql.usePingMethod","false");
+    }
+
     /**
      * 设置Cookie的SameSite为None
      * 谷歌系列浏览器新加的属性 在跨域情况下默认为lax 限制了cookie传输
@@ -72,4 +81,5 @@ public class WebConfig implements WebMvcConfigurer {
 //            context.setCookieProcessor(cookieProcessor);
 //        };
 //    }
+
 }

@@ -139,7 +139,7 @@ public class UserController {
             return remove(user);
         } if (action.equals("update")) {
             if (!securityExpressionRoot.hasRole("admin")) {
-                if (!checkPermission(user, authentication.getName())) {
+                if (!checkPermission(user, authentication)) {
                     response.setStatus(403);
                     return new ReturnRes(false, "Permission is not allowed.");
                 }
@@ -291,12 +291,11 @@ public class UserController {
     /**
      * 检查用户与操作对象是否匹配
      * @param operedUser
-     * @param username
+     * @param authentication
      * @return
      */
-    public boolean checkPermission(User operedUser, String username) {
-        int uid = userService.getIdByUserName(username);
-        return uid == operedUser.getUid();
+    public boolean checkPermission(User operedUser, Authentication authentication) {
+        return ((MyUserDetails)authentication.getPrincipal()).getUid().equals(operedUser.getUid());
     }
 
     @GetMapping("/user/search/{pageSize:\\d+}/{pageNum:\\d+}")
