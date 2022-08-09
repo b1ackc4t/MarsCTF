@@ -1,10 +1,24 @@
+marsctf:
+    appName: marsctf
+    uploadPath: /CTFFiles/  # 题目附件的存放位置
+    imagePath: /CTFImages/  # 图片的存放位置
+    imageUrl: /api/img/ # 图片访问的url位置
+    dockerCertKeyPath: /CertKey
+    log:
+        path: /var/log/springboot
+    token:
+        header: Authorization
+        secret: abcdefghijklmnopqrstuvwxyzfwagfwagwagasfwfwqrstuvwxyzfwagfwagwagasfqrstuvwxyzfwagfwagwagasf
+        expireTime: 3600
+    captcha:
+        length: 4
+        width: 100
+        height: 40
+        imgType: png
+        expireTime: 2
+
 server:
-    #  port: 80
     port: 8080
-    #  servlet:
-    #    session:
-    #      cookie:
-    #        secure: true # 为了samesite：none 只对https使用cookie（仅localhost可以用http）
     servlet:
         session:
             timeout: 600m
@@ -28,15 +42,16 @@ spring:
     web:
         resources:
             static-locations: classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/,file:${marsctf.imagePath}
-
-mybatis-plus:
-    global-config:
-        db-config:
-            table-prefix: mc_
-    configuration:
-        map-underscore-to-camel-case: true
-
-#分页pageHelper
-pagehelper:
-    helper-dialect: mysql
-    reasonable: true
+    redis:
+        database: 1
+        host: redis
+        port: 6379
+        password:
+        connect-timeout: 60s
+        timeout: 120s
+        lettuce:
+            pool:
+                max-wait: 60s
+                max-active: 20
+                max-idle: 10
+                min-idle: 5

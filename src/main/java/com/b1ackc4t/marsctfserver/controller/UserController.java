@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/api")
@@ -36,6 +38,8 @@ public class UserController {
     final WpCommentMapper wpCommentMapper;
     final LearnCommentMapper learnCommentMapper;
     final LoginServiceImpl loginService;
+    final Pattern usernamePat = Pattern.compile("^(?!_)(?!.*?_$)[a-zA-Z0-9_\\u4e00-\\u9fa5]+$");
+    final Pattern passwordPat = Pattern.compile("^.{6,20}$");
 
     @Autowired
     public UserController(UserService userService, UserChaMapService userChaMapService, UserMapper userMapper, ChaCommentMapper chaCommentMapper, WpCommentMapper wpCommentMapper, LearnCommentMapper learnCommentMapper, LoginServiceImpl loginService) {
@@ -187,6 +191,10 @@ public class UserController {
 
     public ReturnRes save(User user) {
 
+        ReturnRes checkRes = checkUserInfo(user);
+        if (checkRes != null) {
+            return checkRes;
+        }
         if (userService.usernameIsRepeat(user.getUname())) {
             return new ReturnRes(false, "用户名已存在");
         }
@@ -223,15 +231,24 @@ public class UserController {
     }
 
     public ReturnRes update(User user) {
+        ReturnRes checkRes = checkUserInfo(user);
+        if (checkRes != null) {
+            return checkRes;
+        }
+
         if (user.getUpassword() != null) {
             user.setUpassword(new BCryptPasswordEncoder().encode(user.getUpassword()));
         }
 
-        if (userService.updateById(user)) {
-            briefUserView(user);
-            return new ReturnRes(true, user);
-        } else {
-            return new ReturnRes(false, "id not found");
+        try {
+            if (userService.updateById(user)) {
+                briefUserView(user);
+                return new ReturnRes(true, user);
+            } else {
+                return new ReturnRes(false, "用户id不存在");
+            }
+        } catch (Exception e) {
+            return new ReturnRes(false, "用户名已经存在");
         }
     }
 
@@ -288,5 +305,19 @@ public class UserController {
                                       @RequestParam String key,
                                       @RequestParam String value) {
         return userService.searchUserByPage(key, value, pageNum, pageSize);
+    }
+
+    public ReturnRes checkUserInfo(User user) {
+        Matcher m1 = usernamePat.matcher(user.getUname());
+        if (!m1.matches()) {
+            return new ReturnRes(false, "用户名只含有汉字、数字、字母、下划线不能以下划线开头和结尾");
+        }
+        if (user.getUpassword() != null) {
+            Matcher m2 = passwordPat.matcher(user.getUpassword());
+            if (!m2.matches()) {
+                return new ReturnRes(false, "密码长度必须为6-20");
+            }
+        }
+        return null;
     }
 }

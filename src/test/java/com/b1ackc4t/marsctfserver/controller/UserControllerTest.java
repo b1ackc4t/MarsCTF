@@ -5,6 +5,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -14,10 +17,11 @@ class UserControllerTest {
 
     @Test
     void fun01() {
-        User user = new User();
-        user.setUname("xsh11");
-        user.setUpassword("rr12");
-        userController.save(user);
+        Pattern r = Pattern.compile("\\w+");
+        Matcher m = r.matcher("fwgwgw");
+
+        System.out.println("lookingAt(): "+m.lookingAt());	// 尝试从开头匹配
+        System.out.println("matches(): "+m.matches());
     }
 
 }

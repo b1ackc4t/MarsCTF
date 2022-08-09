@@ -22,7 +22,7 @@ public final class GraphicHelper {
     private static String imgType;
 
     static {
-        Map<String, String> ymlByFileName = YmlUtil.getYmlByFileName(YmlUtil.base_file,"marsctf", "captcha");
+        Map<String, String> ymlByFileName = YmlUtil.getYmlByFileName(YmlUtil.bootstrap_file,"marsctf", "captcha");
         assert ymlByFileName != null;
         length = Integer.parseInt(ymlByFileName.get("marsctf.captcha.length"));
         width = Integer.parseInt(ymlByFileName.get("marsctf.captcha.width"));
