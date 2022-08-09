@@ -85,6 +85,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/logout").permitAll()
                 .antMatchers("/api/register").permitAll()
                 .antMatchers("/api/getCaptchaImage").permitAll()
+                .antMatchers("/api/user/downloadCTFFile/**").permitAll()
                 .antMatchers("/api/userinfo/*").permitAll()
                 .antMatchers("/api/users/**").authenticated()
                 .antMatchers("/api/user/**").authenticated()
