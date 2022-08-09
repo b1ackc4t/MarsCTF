@@ -11,6 +11,7 @@ import com.b1ackc4t.marsctfserver.pojo.ReturnRes;
 import com.b1ackc4t.marsctfserver.pojo.User;
 import com.b1ackc4t.marsctfserver.service.UserChaMapService;
 import com.b1ackc4t.marsctfserver.service.UserService;
+import com.b1ackc4t.marsctfserver.service.impl.LoginServiceImpl;
 import com.b1ackc4t.marsctfserver.util.generator.ShortUUID;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,9 +35,10 @@ public class UserController {
     final ChaCommentMapper chaCommentMapper;
     final WpCommentMapper wpCommentMapper;
     final LearnCommentMapper learnCommentMapper;
+    final LoginServiceImpl loginService;
 
     @Autowired
-    public UserController(UserService userService, UserChaMapService userChaMapService, UserMapper userMapper, ChaCommentMapper chaCommentMapper, WpCommentMapper wpCommentMapper, LearnCommentMapper learnCommentMapper) {
+    public UserController(UserService userService, UserChaMapService userChaMapService, UserMapper userMapper, ChaCommentMapper chaCommentMapper, WpCommentMapper wpCommentMapper, LearnCommentMapper learnCommentMapper, LoginServiceImpl loginService) {
 
         this.userService = userService;
         this.userChaMapService = userChaMapService;
@@ -44,6 +46,7 @@ public class UserController {
         this.chaCommentMapper = chaCommentMapper;
         this.wpCommentMapper = wpCommentMapper;
         this.learnCommentMapper = learnCommentMapper;
+        this.loginService = loginService;
     }
 
     @GetMapping("/userInfo/{id:\\d+}")  // 废弃
@@ -166,9 +169,14 @@ public class UserController {
     @PostMapping("/register")
     public ReturnRes register(@RequestParam String username,
                               @RequestParam(defaultValue = "") String password,
-                              @RequestParam(defaultValue = "") String passwordR) {
+                              @RequestParam(defaultValue = "") String passwordR,
+                              @RequestParam String captchaId,
+                              @RequestParam String captcha) {
+        if (!loginService.validateCaptcha(username, captcha, captchaId)) {
+            return new ReturnRes(false, "验证码输入错误");
+        }
         if (!password.equals(passwordR)) {
-            return new ReturnRes(false, "The two passwords are different.");
+            return new ReturnRes(false, "两次密码不一致");
         }
         User user = new User(username, password);
         user.setRole(Constant.ROLE_USER);
@@ -180,7 +188,7 @@ public class UserController {
     public ReturnRes save(User user) {
 
         if (userService.usernameIsRepeat(user.getUname())) {
-            return new ReturnRes(false, "Duplicate name");
+            return new ReturnRes(false, "用户名已存在");
         }
 
         user.setUpassword(new BCryptPasswordEncoder().encode(user.getUpassword()));

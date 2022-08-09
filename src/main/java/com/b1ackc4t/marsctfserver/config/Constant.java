@@ -5,4 +5,6 @@ public class Constant {
     public static final String ROLE_ADMIN = "ROLE_admin";
     public static final String LOGIN_USER_KEY = "LOGIN_KEY";
     public static final String TOKEN_PREFIX = "Bearer ";
+    public static final String CAPTCHA_KEY = "CAPTCHA_KEY";
+
 }

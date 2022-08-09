@@ -84,6 +84,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/login").permitAll()  // 开放访问的目录
                 .antMatchers("/api/logout").permitAll()
                 .antMatchers("/api/register").permitAll()
+                .antMatchers("/api/getCaptchaImage").permitAll()
                 .antMatchers("/api/userinfo/*").permitAll()
                 .antMatchers("/api/users/**").authenticated()
                 .antMatchers("/api/user/**").authenticated()

@@ -31,7 +31,7 @@ public class Scheduler {
         Integer dockerTime = configMapper.selectTimeConfig();
         for (DockerContainer dockerContainer : dockerContainers) {
 
-            if (dockerContainer.getStartTime().getTime() + dockerContainer.getAddTime() * 1000 + dockerTime * 1000 <= new Date().getTime()) {
+            if (dockerContainer.getStartTime().getTime() + dockerContainer.getAddTime() * 1000 + dockerTime * 1000 <= System.currentTimeMillis()) {
                 try {
                     dockerService.removeContainerByConId(dockerContainer.getContainerId());
                 } catch (IOException e) {

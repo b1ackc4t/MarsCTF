@@ -52,7 +52,9 @@ public class YmlUtil {
      */
     public static Map<String,String> getYmlByFileName(String filePath, String... keys) {
         result = new HashMap<>();
-        if(filePath == null) filePath = bootstrap_file;
+        if(filePath == null) {
+            filePath = bootstrap_file;
+        }
         InputStream in = null;
         try {
             Resource resource = new ClassPathResource(filePath);
