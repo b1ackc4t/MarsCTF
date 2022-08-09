@@ -9,7 +9,7 @@ marsctf:
     token:
         header: Authorization
         secret: abcdefghijklmnopqrstuvwxyzfwagfwagwagasfwfwqrstuvwxyzfwagfwagwagasfqrstuvwxyzfwagfwagwagasf
-        expireTime: 3600
+        expireTime: 10080
     captcha:
         length: 4
         width: 100
